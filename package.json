@@ -1,0 +1,19 @@
+{
+  "name": "twinode",
+  "version": "1.0.0",
+  "description": "Un réseau social similaire à Twitter, utilisant NodeJS et Typescript",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EvensPompe/TwiNode.git"
+  },
+  "author": "Evens Pompe",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EvensPompe/TwiNode/issues"
+  },
+  "homepage": "https://github.com/EvensPompe/TwiNode#readme"
+}
