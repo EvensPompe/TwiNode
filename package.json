@@ -4,7 +4,11 @@
   "description": "Un réseau social similaire à Twitter, utilisant NodeJS et Typescript",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "build": "tsc --outDir dist -w",
+    "watch": "concurrently -k -n \"Node,TypeScript\" -p \"[{name}]\" -c \"blue,red\" \"npm:watch-node\" \"npm:watch-ts\"",
+    "watch-node": "nodemon ./dist/app.js",
+    "watch-ts": "tsc -w"
   },
   "repository": {
     "type": "git",
@@ -15,5 +19,21 @@
   "bugs": {
     "url": "https://github.com/EvensPompe/TwiNode/issues"
   },
-  "homepage": "https://github.com/EvensPompe/TwiNode#readme"
+  "homepage": "https://github.com/EvensPompe/TwiNode#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.19.0",
+    "@types/cors": "^2.8.6",
+    "@types/express": "^4.17.2",
+    "@types/jest": "^25.1.2",
+    "@types/node": "^13.7.0",
+    "concurrently": "^5.1.0",
+    "jest": "^25.1.0",
+    "nodemon": "^2.0.2",
+    "typescript": "^3.7.5"
+  }
 }
