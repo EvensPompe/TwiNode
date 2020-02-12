@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import cors from 'cors'
-
+import cors from 'cors';
+import exphbs from 'express-handlebars';
 export default class Server {
 
   private port:number;
@@ -17,9 +17,16 @@ export default class Server {
     app.use(bodyParser.json());
     app.use(cors());
 
-    app.get("/",(req,res)=>{
-      res.send("hello world")
-    })
+    app.engine('handlebars', exphbs());
+    app.set('view engine', 'handlebars');
+    app.use('/static',express.static('public'));
+
+    app.get('/', function (req, res) {
+      
+    res.render('home',{
+      isConnect: false,
+    });
+    });
     app.listen(this.port, () => {
       console.log(`Le serveur tourne sur le port ${this.port}`);
     })
