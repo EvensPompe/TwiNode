@@ -13,4 +13,5 @@ db.once('open', function() {
 const user = mongoose.model('user',_user);
 const tweetNode = mongoose.model('tweetNode', _tweetNode);
 
-export default { tweetNode,user,db,twidb };
+
+export default { user,tweetNode };
