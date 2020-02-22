@@ -2,7 +2,14 @@ import mongoose from 'mongoose';
 import _user from '../schema/user';
 import _tweetNode from '../schema/tweetNode';
 
-const twidb = mongoose.connect('mongodb://localhost:27017/twinode', {useNewUrlParser: true});
+let option:object = {
+  useNewUrlParser: true,
+  useFindAndModify: false,
+  useCreateIndex: true,
+  useUnifiedTopology: true
+}
+
+const twidb = mongoose.connect('mongodb://localhost:27017/twinode',option);
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));

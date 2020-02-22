@@ -8,7 +8,8 @@ const user = new mongoose.Schema({
   mdp: String,
   token: String,
   estActif:Boolean,
-  img: String
+  img: String,
+  bannière:String
 });
 
 export default user;

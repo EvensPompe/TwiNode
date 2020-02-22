@@ -3,7 +3,8 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import exphbs from 'express-handlebars';
 import applications from './router/router';
-import session from 'express-session';
+import cookieSession from 'cookie-session';
+import cookieParser from 'cookie-parser';
 
 export default class Server {
 
@@ -18,13 +19,13 @@ export default class Server {
 
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());
+    app.use(cookieParser())
     app.use(cors());
     app.set('trust proxy', 1) // trust first proxy
-    app.use(session({
+    app.use(cookieSession({
       secret: 'keyboard cat',
-      resave: false,
-      saveUninitialized: true,
-      cookie: { secure: true }
+      name: 'session',
+      keys: ['key1', 'key2']
     }));
 
     app.engine('handlebars', exphbs());
