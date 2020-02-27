@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+const Schema = mongoose.Schema;
 
 const user = new mongoose.Schema({
   nom: String,
@@ -9,7 +10,8 @@ const user = new mongoose.Schema({
   token: String,
   estActif:Boolean,
   img: String,
-  bannière:String
+  bannière:String,
+  tweets:[{type: Schema.Types.ObjectId,ref:'tweeNode'}]
 });
 
 export default user;

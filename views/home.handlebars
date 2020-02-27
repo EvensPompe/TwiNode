@@ -1,4 +1,18 @@
 <main>
-{{>tweetBar}}
-
+  {{#if isConnected}}
+    {{>tweetBar}}
+  {{else}}
+  {{/if}}
+  {{#each tweets as |tweet key|}}
+    {{#each tweet}}
+      <div class="card mb-2">
+        <div class="card-body">
+          <p class="card-text">{{this.tweet}}</p>
+        </div>
+        {{#each this.imgtweet as |img key|}}
+        <img src="{{img}}" alt="{{img}}" class="card-img-top">
+        {{/each}}
+      </div>
+    {{/each}}
+  {{/each}}
 </main>

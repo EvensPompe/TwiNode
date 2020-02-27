@@ -1,5 +1,18 @@
 <section class="container-fluid">
-  <section class="row">
-      
-  </section>
+  <form class="row d-flex justify-content-around align-items-center" method="post" enctype="multipart/form-data" action="/newTwiNode">
+    <div class="col">
+      <textarea name="tweet" class="form-control" placeholder="Votre journée ?"></textarea>
+    </div>
+    <div class="col">
+      <label for="imgtweet">Images</label>
+      <input type="file" name="imgtweet" multiple accept="image/*">
+    </div>
+    <div class="col">
+      <label for="videotweet">Vidéos</label>
+      <input type="file" name="videotweet" multiple accept="video/*">
+    </div>
+    <div class="col">
+      <button type="submit" class="btn btn-dark">TwiNoder</button>
+    </div>
+  </form>
 </section>
