@@ -28,7 +28,16 @@ export default class Server {
       keys: ['key1', 'key2']
     }));
 
-    app.engine('handlebars', exphbs());
+    var hbs = exphbs.create({
+        // Specify helpers which are only registered on this instance.
+        helpers: {
+            isEqual: function (value1:any,value2:any) {
+              return value1 === value2 ;
+            }
+        }
+    });
+
+    app.engine('handlebars', hbs.engine);
     app.set('view engine', 'handlebars');
     app.use('/static', express.static('public'));
     app.use('/uploads', express.static('uploads'));
