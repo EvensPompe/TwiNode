@@ -4,10 +4,11 @@ import multer from 'multer';
 var upload = multer({ dest: 'uploads/' });
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import User from '../middlewares/NodeUser';
 import * as nodemailer from 'nodemailer';
+import User from '../middlewares/NodeUser';
 import Mail from '../middlewares/Mail';
 import Tweet from '../middlewares/Tweet';
+import verif from '../middlewares/verif';
 import { TokenGenerator, TokenBase } from 'ts-token-generator';
 
 process.env.SECRET_KEY = "secret";
@@ -17,7 +18,7 @@ const app = express();
 
 app.get('/',function(req, res) {
   db.default.tweetNode.find({},(err,data)=>{
-    if (req.session.token) {
+    if (req.session?.token) {
       res.render('home',{
         isConnected:true,
         tweets: data
@@ -32,71 +33,62 @@ app.get('/',function(req, res) {
 });
 
 app.post("/newTwiNode",upload.fields([{name:'imgtweet'},{name:'videotweet'}]),(req,res)=>{
-// console.log(req.files.imgtweet,req.files.videotweet);
-let imgsPath:[string] = req.files.imgtweet.map((img:object) =>{
-  return img.path;
-});
+let imgsPath:string[] = verif(req.files?.imgtweet);
 
-let videosPath:[string] = req.files.videotweet.map((video:object) =>{
-  return video.path;
-});
+let videosPath:string[] = verif(req.files?.videotweet);
 
-let tweet = new Tweet(req.body.tweet,imgsPath,videosPath,req.session.iduser);
-db.default.tweetNode.create(tweet,(err:any,data:any)=>{
-  if (err) {
-    console.log(err);
-  }else{
-    res.redirect("/");
-  }
-})
+if (imgsPath.length == 0 && videosPath == 0 && !req.body.tweet) {
+  res.redirect("/");
+}else{
+  let tweet = new Tweet(req.body.tweet,imgsPath,videosPath,req.session?.iduser);
+  db.default.tweetNode.create(tweet,(err:any,data:any)=>{
+    if (err) {
+      console.log(err);
+    }else{
+      res.redirect("/");
+    }
+  })
+}
 });
 
 app.get('/notification', (req, res) => {
-  if (req.session.token) {
+  if (req.session?.token) {
     res.render('notification',{
       isConnected:true
     });
   }else{
-    res.render('notification',{
-      isConnected:false
-    });
+    res.redirect("/connection");
   }
 })
 
 app.get('/messages', (req, res) => {
-  if (req.session.token) {
+  if (req.session?.token) {
     res.render('messages',{
       isConnected:true
     });
   }else{
-    res.render('messages',{
-      isConnected:false
-    });
+    res.redirect("/connection");
   }
 })
 
 app.get('/profil', (req, res) => {
-  if (req.session.token) {
+  if (req.session?.token) {
     res.render('profil',{
       isConnected:true,
-      pseudo:req.session.pseudo
+      pseudo:req.session?.pseudo
     });
   }else{
-    res.render('profil',{
-      isConnected:false
-    });
+    res.redirect("/connection");
   }
 })
 
 app.get('/parametres', (req, res) => {
-  if (req.session.token) {
+  if (req.session?.token) {
     res.render('parametres',{
       isConnected:true
     });
   }else{
-    res.render('parametres',{
-      isConnected:false
-    });
+    res.redirect("/connection");
   }
 })
 
@@ -106,15 +98,25 @@ app.get('/connection', (req, res) => {
 
 app.post('/connection', (req, res) => {
   db.default.user.findOne({email:req.body.email},(err:any, user:any)=>{
-    if (bcrypt.compareSync(req.body.mdp,user.mdp)) {
-      req.session.iduser = user._id
-      req.session.pseudo = user.pseudo
-      req.session.email = user.email
-      req.session.token = user.token
-      res.redirect("/profil")
-    }else{
-      console.log("Votre identifiant ou votre mot de passe ne sont pas valide !");
-    }
+    if (!user) {
+     res.render("connection",{
+       error:true,
+       message:"Le compte n'existe pas !"
+     })
+   }else{
+     if (bcrypt.compareSync(req.body.mdp,user.mdp)) {
+       req.session.iduser = user._id
+       req.session?.pseudo = user.pseudo
+       req.session?.email = user.email
+       req.session?.token = user.token
+       res.redirect("/profil")
+     }else{
+       res.render("connection",{
+         error:true,
+         message:"Votre identifiant ou votre mot de passe ne sont pas valide !"
+       })
+     }
+   }
   })
 });
 
@@ -127,7 +129,7 @@ app.post('/inscription', (req, res) => {
     if (err) {
       console.log(err);
     } else {
-     if (!user && user.estActif) {
+     if (!user) {
        if (req.body.mdp === req.body.confirm) {
         let confToken = new TokenGenerator();
          confToken.generate();
@@ -158,7 +160,10 @@ app.post('/inscription', (req, res) => {
          })
          res.redirect('/')
        }else{
-        console.log("Votre identifiant ou votre mot de passe ne sont pas valide !");
+         res.render("inscription",{
+           error:true,
+           message:"Les mots de passe ne correspondent pas !"
+         })
        }
      }else{
 
@@ -197,9 +202,9 @@ app.get("/user/confirmation",(req,res)=>{
     let conditionConf:object = { email: jwtData.email, token: jwtData.token };
     let update:object = {estActif: true};
     db.default.user.findOneAndUpdate(conditionConf,update,{new:true},(err,data)=>{
-      req.session.pseudo = data.pseudo
-      req.session.email = data.email
-      req.session.token = data.token
+      req.session?.pseudo = data?.pseudo
+      req.session?.email = data?.email
+      req.session?.token = data?.token
       res.redirect('/')
     })
   });

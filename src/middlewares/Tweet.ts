@@ -1,11 +1,11 @@
 export default class Tweet {
 private tweet:string;
-private imgtweet:[string];
-private videotweet:[string];
+private imgtweet:string[];
+private videotweet:string[];
 private date:Date;
 private user:string;
 
-  constructor(tweet:string,imgtweet:[string],videotweet:[string],user:string) {
+  constructor(tweet:string,imgtweet:string[],videotweet:string[],user:string) {
     this.tweet = tweet;
     this.imgtweet = imgtweet;
     this.videotweet = videotweet;
