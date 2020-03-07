@@ -5,6 +5,7 @@ import exphbs from 'express-handlebars';
 import applications from './router/router';
 import cookieSession from 'cookie-session';
 import cookieParser from 'cookie-parser';
+import moment from './middlewares/moment';
 
 export default class Server {
 
@@ -33,6 +34,10 @@ export default class Server {
         helpers: {
             isEqual: function (value1:any,value2:any) {
               return value1 === value2 ;
+            },
+            fromNow:function (date:any) {
+              let result = moment(date).fromNow();
+              return result;
             }
         }
     });

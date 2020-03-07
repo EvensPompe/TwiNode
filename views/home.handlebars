@@ -7,6 +7,19 @@
     {{#each tweets as |tweet key|}}
       <div class="col mb-2">
         <div class="card text-white bg-dark">
+          <div class="card-header">
+            {{#if tweet}}
+              {{#each tweet}}
+                {{#if this.user}}
+                  {{#each this.user}}
+                    <h4 class="card-title">{{this.pseudo}}</h4>
+                  {{/each}}
+                {{/if}}
+                {{#if this.date}}
+                  <p class="card-text"><small class="text-muted">{{fromNow this.date}}</small></p>
+                {{/if}}
+              {{/each}}
+          </div>
           {{#each tweet}}
             {{#if this.imgtweet}}
               <div id="carouselImg{{key}}" class="carousel slide" data-ride="carousel">
@@ -43,10 +56,13 @@
                 </div>
               </div>
             {{/if}}
+            {{#if this.tweet}}            
             <div class="card-body">
               <p class="card-text">{{this.tweet}}</p>
             </div>
+            {{/if}}
           {{/each}}
+          {{/if}}
         </div>
       </div>
     {{/each}}
