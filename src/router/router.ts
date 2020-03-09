@@ -1,7 +1,16 @@
 import * as db from '../database/db';
 import express from 'express';
 import multer from 'multer';
-var upload = multer({ dest: 'uploads/' });
+var storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, './uploads')
+  },
+  filename: function(req, file, cb) {
+    cb(null, file.fieldname + '-' + Date.now())
+  }
+})
+
+var upload = multer({ storage: storage })
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import * as nodemailer from 'nodemailer';
@@ -17,7 +26,7 @@ process.env.SECRET_KEY = "secret";
 const app = express();
 
 app.get('/', function(req, res) {
-  db.default.tweetNode.find({}).populate("user").exec((err, data) => {
+  db.default.tweetNode.find({}).populate("user", "-mdp -token -estActif -nom -prenom").exec((err, data) => {
     if (req.session ?.token) {
       res.render('home', {
         isConnected: true,
@@ -84,10 +93,106 @@ app.get('/profil', (req, res) => {
   }
 })
 
+app.get('/profil/mes_twinodes', (req, res) => {
+  db.default.tweetNode.find({ user: req.session.iduser }).populate("user", "-mdp -token -estActif -nom -prenom").exec((err: any, tweets: any) => {
+    if (req.session ?.token) {
+      res.render('profil', {
+        isConnected: true,
+        pseudo: req.session ?.pseudo,
+        tweets: tweets,
+        mes_twinodes: true
+      });
+    } else {
+      res.redirect("/connection");
+    }
+  })
+})
+
+app.get('/profil/mes_reponses', (req, res) => {
+  if (req.session ?.token) {
+    res.render('profil', {
+      isConnected: true,
+      pseudo: req.session ?.pseudo,
+      mes_reponses: true
+    });
+  } else {
+    res.redirect("/connection");
+  }
+})
+
+app.get('/profil/aime', (req, res) => {
+  if (req.session ?.token) {
+    res.render('profil', {
+      isConnected: true,
+      pseudo: req.session ?.pseudo,
+      aime: true
+    });
+  } else {
+    res.redirect("/connection");
+  }
+})
+
 app.get('/parametres', (req, res) => {
   if (req.session ?.token) {
     res.render('parametres', {
       isConnected: true
+    });
+  } else {
+    res.redirect("/connection");
+  }
+})
+
+app.get('/parametres/pseudo', (req, res) => {
+  db.default.user.findById(req.session?.iduser,(err:any,user:any)=>{
+    if (req.session ?.token) {
+      res.render('parametres', {
+        isConnected: true,
+        pseudo: true,
+        user:user
+      });
+    } else {
+      res.redirect("/connection");
+    }
+  })
+})
+
+app.post('/parametres/pseudo', (req, res) => {
+  if (req.session ?.pseudo == req.body?.newPseudo) {
+    res.redirect("/parametres/pseudo");
+  }
+  db.default.user.findOneAndUpdate({ pseudo: req.session ?.pseudo }, { pseudo: req.body?.newPseudo }, { new: true }, (err:any, user:any) => {
+    req.session ?.pseudo = req.body?.newPseudo
+    res.redirect("/parametres/pseudo");
+  })
+})
+
+app.get('/parametres/email', (req, res) => {
+  if (req.session ?.token) {
+    res.render('parametres', {
+      isConnected: true,
+      email: true
+    });
+  } else {
+    res.redirect("/connection");
+  }
+})
+
+app.get('/parametres/mdp', (req, res) => {
+  if (req.session ?.token) {
+    res.render('parametres', {
+      isConnected: true,
+      mdp: true
+    });
+  } else {
+    res.redirect("/connection");
+  }
+})
+
+app.get('/parametres/desactivation', (req, res) => {
+  if (req.session ?.token) {
+    res.render('parametres', {
+      isConnected: true,
+      desactivation: true
     });
   } else {
     res.redirect("/connection");

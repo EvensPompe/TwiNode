@@ -46,6 +46,7 @@ export default class Server {
     app.set('view engine', 'handlebars');
     app.use('/static', express.static('public'));
     app.use('/uploads', express.static('uploads'));
+    app.use('/profil/uploads', express.static('uploads'));
 
     app.use('/', applications)
 

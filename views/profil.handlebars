@@ -1,23 +1,29 @@
 <main>
-<div class=".container-fluid">
-<img src="https://i.pinimg.com/originals/12/44/66/1244669904e7cb1be65ffdfb80475148.jpg" class="img-fluid" alt="bannière">
-</div>
-<nav class="navbar navbar-light bg-light">
-<h2>{{pseudo}}</h2>
-<button type="button" name="button" class="btn btn-lg btn-secondary">éditer le profil</button>
-</nav>
-<nav class="nav justify-content-around">
-  <ul class="nav nav-tabs">
-    <li class="nav-item">
-      <a class="nav-link" href="/profil/mes-twinodes">Mes TwiNodes</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="/profil/mes-reponses">Mes réponses</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="/profil/aime">J'aime</a>
-    </li>
-  </ul>
-</nav>
-
+  <div class=".container-fluid">
+    <img src="https://i.pinimg.com/originals/12/44/66/1244669904e7cb1be65ffdfb80475148.jpg" class="img-fluid" alt="bannière">
+  </div>
+  <nav class="navbar navbar-light bg-light">
+    <h2>{{pseudo}}</h2>
+    <button type="button" name="button" class="btn btn-lg btn-secondary">éditer le profil</button>
+  </nav>
+  <nav class="nav justify-content-around">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link" href="/profil/mes_twinodes">Mes TwiNodes</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/profil/mes_reponses">Mes réponses</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/profil/aime">J'aime</a>
+      </li>
+    </ul>
+  </nav>
+  {{#if mes_twinodes}}
+    {{> mesTwinodes tweets=tweets}}
+  {{else if mes_reponses}}
+    {{> mesReponses}}
+  {{else if aime}}
+    {{> aime}}
+  {{/if}}
 </main>
