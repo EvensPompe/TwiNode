@@ -41,20 +41,13 @@
       </ul>
     </div>
     {{#if pseudo}}
-      <form method="post" action="/parametres/pseudo">
-        <div class="form-group">
-          <label for="newPseudoInput" class="col-sm-2 col-form-label form-control-lg">Pseudo</label>
-          <fieldset>
-            {{#each user as |object|}}
-              {{#if object.pseudo}}
-                <input type="text" id="disabledPseudoInput" class="form-control form-control-lg" disabled placeholder="Votre pseudo actuel : {{object.pseudo}}" style="text-align:center;">
-              {{/if}}
-            {{/each}}
-          </fieldset>
-          <input type="text" name="newPseudo" class="form-control-plaintext form-control-lg" id="newPseudoInput" placeholder="Entrer votre nouveau pseudo !" style="text-align:center;">
-          <input type="submit" class="btn btn-dark">
-        </div>
-      </form>
+      {{> parametresPseudo user=user}}
+      {{else if email}}
+      {{> parametresEmail user=user}}
+      {{else if mdp}}
+      {{> parametresMdp}}
+      {{else if desactivation}}
+      {{> parametresdesactivation}}
     {{/if}}
   </div>
 </main>

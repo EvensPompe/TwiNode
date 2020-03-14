@@ -1,0 +1,14 @@
+<form method="post" action="/parametres/email">
+  <div class="form-group">
+    <label for="newEmailInput" class="col-sm-2 col-form-label form-control-lg">Email</label>
+    <fieldset>
+      {{#each user as |object|}}
+        {{#if object.email}}
+          <input type="text" id="disabledEmailInput" class="form-control form-control-lg" disabled placeholder="Votre email actuel : {{object.email}}" style="text-align:center;">
+        {{/if}}
+      {{/each}}
+    </fieldset>
+    <input type="email" name="newEmail" class="form-control-plaintext form-control-lg" id="newEmailInput" placeholder="Entrer votre nouveau email !" style="text-align:center;">
+    <input type="submit" class="btn btn-dark">
+  </div>
+</form>

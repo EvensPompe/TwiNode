@@ -143,12 +143,12 @@ app.get('/parametres', (req, res) => {
 })
 
 app.get('/parametres/pseudo', (req, res) => {
-  db.default.user.findById(req.session?.iduser,(err:any,user:any)=>{
+  db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
     if (req.session ?.token) {
       res.render('parametres', {
         isConnected: true,
         pseudo: true,
-        user:user
+        user: user
       });
     } else {
       res.redirect("/connection");
@@ -157,24 +157,37 @@ app.get('/parametres/pseudo', (req, res) => {
 })
 
 app.post('/parametres/pseudo', (req, res) => {
-  if (req.session ?.pseudo == req.body?.newPseudo) {
+  if (req.session ?.pseudo == req.body ?.newPseudo) {
     res.redirect("/parametres/pseudo");
   }
-  db.default.user.findOneAndUpdate({ pseudo: req.session ?.pseudo }, { pseudo: req.body?.newPseudo }, { new: true }, (err:any, user:any) => {
-    req.session ?.pseudo = req.body?.newPseudo
+  db.default.user.findOneAndUpdate({ pseudo: req.session ?.pseudo }, { pseudo: req.body ?.newPseudo }, { new: true }, (err: any, user: any) => {
+    req.session ?.pseudo = req.body ?.newPseudo
     res.redirect("/parametres/pseudo");
   })
 })
 
 app.get('/parametres/email', (req, res) => {
-  if (req.session ?.token) {
-    res.render('parametres', {
-      isConnected: true,
-      email: true
-    });
-  } else {
-    res.redirect("/connection");
+  db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
+    if (req.session ?.token) {
+      res.render('parametres', {
+        isConnected: true,
+        email: true,
+        user: user
+      });
+    } else {
+      res.redirect("/connection");
+    }
+  })
+})
+
+app.post('/parametres/email', (req, res) => {
+  if (req.session ?.email == req.body ?.newEmail) {
+    res.redirect("/parametres/email");
   }
+  db.default.user.findOneAndUpdate({ email: req.session ?.email }, { email: req.body ?.newEmail }, { new: true }, (err: any, user: any) => {
+    req.session ?.email = req.body ?.newEmail
+    res.redirect("/parametres/email");
+  })
 })
 
 app.get('/parametres/mdp', (req, res) => {
@@ -188,6 +201,32 @@ app.get('/parametres/mdp', (req, res) => {
   }
 })
 
+app.post('/parametres/mdp', (req, res) => {
+  db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
+    if (bcrypt.compareSync(req.body ?.oldMdp, user.mdp)) {
+      if (req.body ?.newMdp == req.body ?.reNewMdp) {
+        let hash = bcrypt.hashSync(req.body ?.reNewMdp, 10)
+        db.default.user.findByIdAndUpdate(req.session ?.iduser, { mdp: hash }, { new: true }, (err: any, user: any) => {
+          let mail = new Mail();
+          mail.sendMail(user.email, `Modification du mot de passe`, `Hello ${user.pseudo},
+       Le mot de passe de votre compte a été modifié avec succès !
+
+       À très bientôt !
+
+
+       Evens POMPE de TwiNode.`)
+          res.redirect("/parametres/mdp");
+        })
+
+      } else {
+        res.redirect("/parametres/mdp");
+      }
+    } else {
+      res.redirect("/parametres/mdp");
+    }
+  })
+})
+
 app.get('/parametres/desactivation', (req, res) => {
   if (req.session ?.token) {
     res.render('parametres', {
@@ -197,6 +236,76 @@ app.get('/parametres/desactivation', (req, res) => {
   } else {
     res.redirect("/connection");
   }
+})
+
+app.post('/parametres/desactivation', (req, res) => {
+  if (req.body ?.checkDesact) {
+    db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
+      if (err) {
+        res.redirect("/parametres/desactivation");
+      } else {
+        if (bcrypt.compareSync(req.body ?.confirmMdp, user.mdp)) {
+          db.default.user.findByIdAndUpdate(req.session ?.iduser, { estActif: false }, { new: true }, (err: any, data: any) => {
+            if (err) {
+              res.redirect("/parametres/desactivation");
+            } else {
+              let userJwt: object = {
+                nom: user.nom,
+                prenom: user.prenom,
+                pseudo: user.pseudo,
+                email: user.email,
+                token: user.token
+              }
+
+              var tokenjwt = jwt.sign(userJwt, "annule le secret", { expiresIn: "30d" });
+              let mail = new Mail();
+              mail.sendMail(user.email, `Désactivation de votre compte`, `Hello ${user.pseudo},
+          Votre compte a été désactivé avec succès !
+          Si toutefois vous n'êtes pas à l'origine de cette désactivation.
+          Vous pouvez annuler le processus en vous connectant via le lien ci-dessus :
+          http://localhost:3001/user/annulation?&jwt=${tokenjwt}
+          Vous avez jusqu'à 30 jours pour annuler.
+           À très bientôt !
+
+
+           Evens POMPE de TwiNode.`)
+              res.redirect("/deconnection");
+            }
+          })
+        } else {
+          res.redirect("/parametres/desactivation");
+        }
+      }
+    })
+  }
+})
+
+app.get("/user/annulation", (req, res) => {
+  jwt.verify(req.query.jwt, "annule le secret", (err: any, data: any) => {
+    if (err) {
+      res.redirect("/connection")
+    } else {
+      db.default.user.findOne({ email: data.email }, (err: any, user: any) => {
+        if (err) {
+          res.redirect("/connection")
+        } else {
+          if (user.estActif == false) {
+            db.default.user.findOneAndUpdate({ email: data.email }, { estActif: true }, { new: true }, (err: any, result: any) => {
+              if (err) {
+                res.redirect("/connection")
+              }else{
+                req.session.iduser = user._id
+                req.session ?.pseudo = user.pseudo
+                req.session ?.email = user.email
+                req.session ?.token = user.token
+                res.redirect("/profil")
+              }
+            })
+          }
+        }
+      })
+    }
+  })
 })
 
 app.get('/connection', (req, res) => {
@@ -309,6 +418,7 @@ app.get("/user/confirmation", (req, res) => {
     let conditionConf: object = { email: jwtData.email, token: jwtData.token };
     let update: object = { estActif: true };
     db.default.user.findOneAndUpdate(conditionConf, update, { new: true }, (err, data) => {
+      req.session ?.iduser = data ?._id
       req.session ?.pseudo = data ?.pseudo
       req.session ?.email = data ?.email
       req.session ?.token = data ?.token
