@@ -9,6 +9,7 @@ export default class NodeUser {
   private token: string;
   private estActif:boolean;
   private saltRounds:number = 10;
+  private banniere:string;
 
   constructor(nom: string, prenom: string, pseudo: string, email: string, mdp:string,token: string) {
       this.nom = nom;
@@ -18,6 +19,7 @@ export default class NodeUser {
       this.token = token;
       this.mdp = bcrypt.hashSync(mdp, this.saltRounds);
       this.estActif = false;
+      this.banniere = "https://i.pinimg.com/originals/12/44/66/1244669904e7cb1be65ffdfb80475148.jpg";
   }
 
   get Nom() {

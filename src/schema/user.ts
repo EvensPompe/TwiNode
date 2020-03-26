@@ -6,11 +6,11 @@ const user = new mongoose.Schema({
   prenom: String,
   pseudo: String,
   email: String,
-  mdp: String,
+  mdp: { type: String, required: true, index: { unique: true }},
   token: String,
   estActif:Boolean,
   img: String,
-  bannière:String,
+  banniere:{type: String,required: true},
   tweets:[{type: Schema.Types.ObjectId,ref:'tweeNode'}]
 });
 

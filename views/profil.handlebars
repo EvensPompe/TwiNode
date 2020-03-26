@@ -1,10 +1,21 @@
 <main>
-  <div class=".container-fluid">
-    <img src="https://i.pinimg.com/originals/12/44/66/1244669904e7cb1be65ffdfb80475148.jpg" class="img-fluid" alt="bannière">
+  <div>
+    <img src="{{banniere}}" id="banniere" class="img-fluid" alt="bannière {{banniere}}" width="100%" height="500px">
   </div>
   <nav class="navbar navbar-light bg-light">
-    <h2>{{pseudo}}</h2>
-    <button type="button" name="button" class="btn btn-lg btn-secondary">éditer le profil</button>
+    {{#unless modif}}
+      <h2>{{pseudo}}</h2>
+      <a type="button" name="button" href="/profil/modification" class="btn btn-lg btn-secondary">éditer le profil</a>
+    {{else}}
+      <form class="container-fluid" action="/profil/modification" enctype="multipart/form-data" method="post">
+        <div>
+          <input type="text" name="newPseudo" class="form-control-plaintext" placeholder="{{pseudo}}">
+        </div>
+        <input type="file" name="newBanniere" id="newBanniere" accept="image/*">
+        <button type="submit" class="btn btn-lg btn-secondary">Enregistrer</button>
+        <a type="button" name="button" href="/profil" class="btn btn-lg btn-secondary">Annuler</a>
+      </form>
+    {{/unless}}
   </nav>
   <nav class="nav justify-content-around">
     <ul class="nav nav-tabs">

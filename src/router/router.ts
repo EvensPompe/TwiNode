@@ -18,6 +18,7 @@ import User from '../middlewares/NodeUser';
 import Mail from '../middlewares/Mail';
 import Tweet from '../middlewares/Tweet';
 import verif from '../middlewares/verif';
+import modif from '../middlewares/modif';
 
 import { TokenGenerator, TokenBase } from 'ts-token-generator';
 
@@ -45,10 +46,10 @@ app.post("/newTwiNode", upload.fields([{ name: 'imgtweet' }, { name: 'videotweet
   let imgsPath: string[] = verif(req.files ?.imgtweet);
   let videosPath: string[] = verif(req.files ?.videotweet);
 
-  if (imgsPath.length == 0 && videosPath == 0 && !req.body.tweet) {
+  if (imgsPath.length == 0 && videosPath == 0 && !req.body?.tweet) {
     res.redirect("/");
   } else {
-    let tweet = new Tweet(req.body.tweet, imgsPath, videosPath, req.session ?.iduser);
+    let tweet = new Tweet(req.body?.tweet, imgsPath, videosPath, req.session ?.iduser);
 
     db.default.tweetNode.create(tweet, (err: any, tweet: any) => {
       db.default.user.findByIdAndUpdate(tweet.user, { $push: { tweets: tweet._id } }, (error: any, data: any) => {
@@ -83,24 +84,12 @@ app.get('/messages', (req, res) => {
 })
 
 app.get('/profil', (req, res) => {
-  if (req.session ?.token) {
-    res.render('profil', {
-      isConnected: true,
-      pseudo: req.session ?.pseudo
-    });
-  } else {
-    res.redirect("/connection");
-  }
-})
-
-app.get('/profil/mes_twinodes', (req, res) => {
-  db.default.tweetNode.find({ user: req.session.iduser }).populate("user", "-mdp -token -estActif -nom -prenom").exec((err: any, tweets: any) => {
+  db.default.user.findById(req.session?.iduser, (err:any, user:any) => {
     if (req.session ?.token) {
       res.render('profil', {
         isConnected: true,
-        pseudo: req.session ?.pseudo,
-        tweets: tweets,
-        mes_twinodes: true
+        pseudo: user.pseudo,
+        banniere: user.banniere,
       });
     } else {
       res.redirect("/connection");
@@ -108,28 +97,78 @@ app.get('/profil/mes_twinodes', (req, res) => {
   })
 })
 
+app.get('/profil/mes_twinodes', (req, res) => {
+  db.default.tweetNode.find({ user: req.session?.iduser }).populate("user", "-mdp -token -estActif -nom -prenom").exec((err: any, tweets: any) => {
+    db.default.user.findById(req.session?.iduser, (err: any, user: any) => {
+      if (req.session ?.token) {
+        res.render('profil', {
+          isConnected: true,
+          pseudo: user.pseudo,
+          tweets: tweets,
+          banniere: user.banniere,
+          mes_twinodes: true
+        });
+      } else {
+        res.redirect("/connection");
+      }
+    })
+  })
+})
+
 app.get('/profil/mes_reponses', (req, res) => {
-  if (req.session ?.token) {
-    res.render('profil', {
-      isConnected: true,
-      pseudo: req.session ?.pseudo,
-      mes_reponses: true
-    });
-  } else {
-    res.redirect("/connection");
-  }
+  db.default.user.findById(req.session?.iduser, (err: any, user: any) => {
+    if (req.session ?.token) {
+      res.render('profil', {
+        isConnected: true,
+        pseudo: user.pseudo,
+        banniere: user.banniere,
+        mes_reponses: true
+      });
+    } else {
+      res.redirect("/connection");
+    }
+  })
 })
 
 app.get('/profil/aime', (req, res) => {
-  if (req.session ?.token) {
-    res.render('profil', {
-      isConnected: true,
-      pseudo: req.session ?.pseudo,
-      aime: true
-    });
-  } else {
-    res.redirect("/connection");
-  }
+  db.default.user.findById(req.session?.iduser, (err: any, user: any) => {
+    if (req.session ?.token) {
+      res.render('profil', {
+        isConnected: true,
+        pseudo: user.pseudo,
+        banniere: user.banniere,
+        aime: true
+      });
+    } else {
+      res.redirect("/connection");
+    }
+  })
+})
+
+app.get('/profil/modification', (req, res) => {
+  db.default.user.findById(req.session?.iduser, (err: any, user: any) => {
+    if (req.session ?.token) {
+      res.render('profil', {
+        isConnected: true,
+        banniere: user.banniere,
+        pseudo: user.pseudo,
+        modif: true
+      });
+    } else {
+      res.redirect("/connection");
+    }
+  })
+})
+
+app.post('/profil/modification', upload.single('newBanniere'), (req, res) => {
+  let modifResult = modif(req.file?.path,req.body?.newPseudo);
+  db.default.user.findByIdAndUpdate(req.session?.iduser, modifResult , { new: true }, (err:any, user:any) => {
+    if (err) {
+      res.redirect("/profil")
+    }else{
+      res.redirect("/profil")
+    }
+  })
 })
 
 app.get('/parametres', (req, res) => {
@@ -141,6 +180,7 @@ app.get('/parametres', (req, res) => {
     res.redirect("/connection");
   }
 })
+
 
 app.get('/parametres/pseudo', (req, res) => {
   db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
@@ -293,7 +333,7 @@ app.get("/user/annulation", (req, res) => {
             db.default.user.findOneAndUpdate({ email: data.email }, { estActif: true }, { new: true }, (err: any, result: any) => {
               if (err) {
                 res.redirect("/connection")
-              }else{
+              } else {
                 req.session.iduser = user._id
                 req.session ?.pseudo = user.pseudo
                 req.session ?.email = user.email
@@ -309,7 +349,11 @@ app.get("/user/annulation", (req, res) => {
 })
 
 app.get('/connection', (req, res) => {
-  res.render('connection');
+  if (req.session ?.token) {
+    res.redirect('/')
+  } else {
+    res.render('connection');
+  }
 })
 
 app.post('/connection', (req, res) => {
@@ -337,7 +381,11 @@ app.post('/connection', (req, res) => {
 });
 
 app.get('/inscription', (req, res) => {
-  res.render('inscription');
+  if (req.session ?.token) {
+    res.redirect('/')
+  } else {
+    res.render('inscription');
+  }
 })
 
 app.post('/inscription', (req, res) => {
