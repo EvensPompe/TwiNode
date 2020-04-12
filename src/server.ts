@@ -6,6 +6,8 @@ import applications from './router/router';
 import cookieSession from 'cookie-session';
 import cookieParser from 'cookie-parser';
 import moment from './middlewares/moment';
+import socketIO from 'socket.io';
+import http from 'http';
 
 export default class Server {
 
@@ -17,6 +19,8 @@ export default class Server {
 
   public start() {
     const app = express();
+    const server = http.createServer(app);
+    const io = socketIO.listen(server);
 
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());
@@ -30,16 +34,16 @@ export default class Server {
     }));
 
     var hbs = exphbs.create({
-        // Specify helpers which are only registered on this instance.
-        helpers: {
-            isEqual: function (value1:any,value2:any) {
-              return value1 === value2 ;
-            },
-            fromNow:function (date:any) {
-              let result = moment(date).fromNow();
-              return result;
-            }
+      // Specify helpers which are only registered on this instance.
+      helpers: {
+        isEqual: function(value1: any, value2: any) {
+          return value1 === value2;
+        },
+        fromNow: function(date: any) {
+          let result = moment(date).fromNow();
+          return result;
         }
+      }
     });
 
     app.engine('handlebars', hbs.engine);
@@ -50,7 +54,19 @@ export default class Server {
 
     app.use('/', applications)
 
-    app.listen(this.port, () => {
+    io.on('connection', function(socket) {
+      socket.emit('news', { hello: 'world' });
+      socket.on('my other event', function(data) {
+        console.log(data);
+      });
+    });
+
+    io.on('connection',(socket : socketIO.socket)=>{
+      console.log('hello');
+
+    })
+
+    server.listen(this.port, () => {
       console.log(`Le serveur tourne sur le port ${this.port}`);
     })
   }

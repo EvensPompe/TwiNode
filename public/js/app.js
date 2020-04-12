@@ -15,4 +15,6 @@ inputImg.addEventListener('change',(event)=>{
     }
   }
   reader.readAsDataURL(file);
-})
+});
+
+console.log(io());
