@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import moment from './middlewares/moment';
 import socketIO from 'socket.io';
 import http from 'http';
+import * as db from './database/db';
 
 export default class Server {
 
@@ -54,20 +55,26 @@ export default class Server {
 
     app.use('/', applications)
 
-    io.on('connection', function(socket) {
-      socket.emit('news', { hello: 'world' });
-      socket.on('my other event', function(data) {
-        console.log(data);
+    io.of('/messages').on('connection',(socket : socketIO.socket)=>{
+      socket.on('message',(data)=>{
+        let newMessage = {message:data.message,user:data.user,date:new Date()};
+        db.default.conversations.findByIdAndUpdate(data.convId,{ $push:{messages:newMessage}},(err:any,message:any)=>{
+          if (err) {
+
+          }else{
+            db.default.conversations.findById(data.convId,(err:any,conv:any)=>{
+              socket.emit('allMessages',{conv:conv});
+            })
+          }
+        })
+      });
+      socket.on('disconnect',()=>{
+        
       });
     });
 
-    io.on('connection',(socket : socketIO.socket)=>{
-      console.log('hello');
-
-    })
-
     server.listen(this.port, () => {
       console.log(`Le serveur tourne sur le port ${this.port}`);
-    })
+    });
   }
 }

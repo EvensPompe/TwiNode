@@ -11,7 +11,8 @@ const user = new mongoose.Schema({
   estActif:Boolean,
   img: String,
   banniere:{type: String,required: true},
-  tweets:[{type: Schema.Types.ObjectId,ref:'tweeNode'}]
+  tweets:[{type: Schema.Types.ObjectId,ref:'tweeNode'}],
+  conversations:[{type: Schema.Types.ObjectId,ref:'tweeNode'}]
 });
 
 export default user;

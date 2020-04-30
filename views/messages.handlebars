@@ -1,0 +1,39 @@
+<main>
+  <form class="row container-fluid" method="post" action="/newConv">
+    <div class="col">
+      <input class="form-control mr-sm-2" required name="rechConv" type="search" placeholder="Recherche" aria-label="Search">
+    </div>
+    <button type="submit">+ Nouvelle conversation</button>
+  </form>
+  <section class="col container-fluid ctn">
+    {{#each convs as |conv|}}
+      {{#if conv}}
+      <div class="row container-fluid d-flex justify-content-between ctn-conv">
+        {{#each conv}}
+            {{#if this}}
+                {{#if this.dest}}
+                  <p class="{{this._id}}">{{this.dest}}</p>
+                {{/if}}
+                {{#if this.messages}}
+                  {{#each this.messages as |value|}}
+                    {{#if value}}
+                      {{#if @last}}
+                        {{#each value as |val|}}
+                          {{#if val.message}}
+                            <p>Dernier message : {{val.message}}</p>
+                          {{/if}}
+                          {{#if val.date}}
+                            <p>{{fromNow val.date}}</p>
+                          {{/if}}
+                        {{/each}}
+                      {{/if}}
+                    {{/if}}
+                  {{/each}}
+                {{/if}}
+            {{/if}}
+        {{/each}}
+      </div>
+      {{/if}}
+    {{/each}}
+  </section>
+</main>

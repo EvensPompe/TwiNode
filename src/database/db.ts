@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import _user from '../schema/user';
 import _tweetNode from '../schema/tweetNode';
+import _conversation from '../schema/conversation';
 
 let option:object = {
   useNewUrlParser: true,
@@ -19,6 +20,6 @@ db.once('open', function() {
 
 const user = mongoose.model('user',_user);
 const tweetNode = mongoose.model('tweetNode', _tweetNode);
+const conversations = mongoose.model('conversation', _conversation);
 
-
-export default { user,tweetNode };
+export default { user,tweetNode,conversations };

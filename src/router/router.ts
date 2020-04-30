@@ -46,10 +46,10 @@ app.post("/newTwiNode", upload.fields([{ name: 'imgtweet' }, { name: 'videotweet
   let imgsPath: string[] = verif(req.files ?.imgtweet);
   let videosPath: string[] = verif(req.files ?.videotweet);
 
-  if (imgsPath.length == 0 && videosPath == 0 && !req.body?.tweet) {
+  if (imgsPath.length == 0 && videosPath == 0 && !req.body ?.tweet) {
     res.redirect("/");
   } else {
-    let tweet = new Tweet(req.body?.tweet, imgsPath, videosPath, req.session ?.iduser);
+    let tweet = new Tweet(req.body ?.tweet, imgsPath, videosPath, req.session ?.iduser);
 
     db.default.tweetNode.create(tweet, (err: any, tweet: any) => {
       db.default.user.findByIdAndUpdate(tweet.user, { $push: { tweets: tweet._id } }, (error: any, data: any) => {
@@ -74,23 +74,66 @@ app.get('/notification', (req, res) => {
 })
 
 app.get('/messages', (req, res) => {
-  if (req.session ?.token) {
-    res.render('messages', {
-      isConnected: true
-    });
-  } else {
-    res.redirect("/connection");
-  }
+  db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
+    db.default.conversations.find({ user: req.session ?.iduser}, (err: any, convs: any) => {
+      if (req.session ?.token) {
+        res.render('messages', {
+          isConnected: true,
+          user: user.pseudo,
+          userId: req.session ?.iduser,
+          convs: convs,
+        });
+      } else {
+        res.redirect("/connection");
+      }
+    })
+  })
+})
+
+app.get('/message', (req, res) => {
+  db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
+    function verifConv(id: string) {
+      if (!id) {
+        return false;
+      } else {
+        return id;
+      }
+    }
+    let newConv = verifConv(req.session?.actConv);
+    let oldConv = verifConv(req.query?.convId);
+    req.session.actConv = oldConv;
+    db.default.conversations.findById(oldConv || newConv || req.session?.actConv, (err: any, conv: any) => {
+      if (req.session ?.token) {
+        res.render('message', {
+          isConnected: true,
+          user: user.pseudo,
+          userId: req.session ?.iduser,
+          convId: conv._id,
+          dest: conv.dest,
+          messages: conv.messages
+        });
+      } else {
+        res.redirect("/connection");
+      }
+    })
+  })
+})
+
+app.post('/newConv', (req, res) => {
+  db.default.conversations.create({ dest: req.body.rechConv, messages: [], user: req.session ?.iduser}, (err: any, conv: any) => {
+    req.session.actConv = conv._id;
+    res.redirect('/message')
+  })
 })
 
 app.get('/profil', (req, res) => {
-  db.default.user.findById(req.session?.iduser, (err:any, user:any) => {
+  db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
     if (req.session ?.token) {
       res.render('profil', {
         isConnected: true,
         pseudo: user.pseudo,
         banniere: user.banniere,
-      });
+      })
     } else {
       res.redirect("/connection");
     }
@@ -98,8 +141,8 @@ app.get('/profil', (req, res) => {
 })
 
 app.get('/profil/mes_twinodes', (req, res) => {
-  db.default.tweetNode.find({ user: req.session?.iduser }).populate("user", "-mdp -token -estActif -nom -prenom").exec((err: any, tweets: any) => {
-    db.default.user.findById(req.session?.iduser, (err: any, user: any) => {
+  db.default.tweetNode.find({ user: req.session ?.iduser }).populate("user", "-mdp -token -estActif -nom -prenom").exec((err: any, tweets: any) => {
+    db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
       if (req.session ?.token) {
         res.render('profil', {
           isConnected: true,
@@ -116,7 +159,7 @@ app.get('/profil/mes_twinodes', (req, res) => {
 })
 
 app.get('/profil/mes_reponses', (req, res) => {
-  db.default.user.findById(req.session?.iduser, (err: any, user: any) => {
+  db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
     if (req.session ?.token) {
       res.render('profil', {
         isConnected: true,
@@ -131,7 +174,7 @@ app.get('/profil/mes_reponses', (req, res) => {
 })
 
 app.get('/profil/aime', (req, res) => {
-  db.default.user.findById(req.session?.iduser, (err: any, user: any) => {
+  db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
     if (req.session ?.token) {
       res.render('profil', {
         isConnected: true,
@@ -146,7 +189,7 @@ app.get('/profil/aime', (req, res) => {
 })
 
 app.get('/profil/modification', (req, res) => {
-  db.default.user.findById(req.session?.iduser, (err: any, user: any) => {
+  db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
     if (req.session ?.token) {
       res.render('profil', {
         isConnected: true,
@@ -161,11 +204,11 @@ app.get('/profil/modification', (req, res) => {
 })
 
 app.post('/profil/modification', upload.single('newBanniere'), (req, res) => {
-  let modifResult = modif(req.file?.path,req.body?.newPseudo);
-  db.default.user.findByIdAndUpdate(req.session?.iduser, modifResult , { new: true }, (err:any, user:any) => {
+  let modifResult = modif(req.file ?.path, req.body ?.newPseudo);
+  db.default.user.findByIdAndUpdate(req.session ?.iduser, modifResult, { new: true }, (err: any, user: any) => {
     if (err) {
       res.redirect("/profil")
-    }else{
+    } else {
       res.redirect("/profil")
     }
   })
