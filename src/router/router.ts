@@ -101,8 +101,8 @@ app.get('/message', (req, res) => {
     }
     let newConv = verifConv(req.session?.actConv);
     let oldConv = verifConv(req.query?.convId);
-    req.session.actConv = oldConv;
-    db.default.conversations.findById(oldConv || newConv || req.session?.actConv, (err: any, conv: any) => {
+    req.session.actConv = oldConv || newConv;
+    db.default.conversations.findById(req.session?.actConv, (err: any, conv: any) => {
       if (req.session ?.token) {
         res.render('message', {
           isConnected: true,

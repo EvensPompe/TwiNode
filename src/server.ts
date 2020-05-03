@@ -41,7 +41,7 @@ export default class Server {
           return value1 === value2;
         },
         fromNow: function(date: any) {
-          let result = moment(date).fromNow();
+          let result = moment(date).format("DD/MM/YYYY HH:mm");
           return result;
         }
       }
@@ -69,7 +69,7 @@ export default class Server {
         })
       });
       socket.on('disconnect',()=>{
-        
+
       });
     });
 
