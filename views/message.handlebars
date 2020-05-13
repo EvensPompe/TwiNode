@@ -4,27 +4,27 @@
   </div>
   <section class="col container-fluid ctn" id="convMess">
     {{#each messages as |message|}}
-    {{#if message}}
-    {{#each message}}
-    <div class="row container-fluid d-flex justify-content-between">
-      {{#if this.user}}
-      <p>{{this.user}} :</p>
+      {{#if message}}
+        {{#each message}}
+          <div class="row container-fluid d-flex justify-content-between">
+            {{#if this.user}}
+              <p>{{this.user}} :</p>
+            {{/if}}
+            {{#if this.message}}
+              <p>{{this.message}}</p>
+            {{/if}}
+            {{#if this.date}}
+              <p>{{fromNow this.date}}</p>
+            {{/if}}
+          </div>
+        {{/each}}
       {{/if}}
-      {{#if this.message}}
-      <p>{{this.message}}</p>
-      {{/if}}
-      {{#if this.date}}
-      <p>{{fromNow this.date}}</p>
-      {{/if}}
-    </div>
-     {{/each}}
-     {{/if}}
-     {{/each}}
+    {{/each}}
   </section>
   <section class="row container-fluid">
     <div class="col">
       <input type="text" class="w-100" id="inputMess" name="messages">
     </div>
-      <button type="button" id="btnMess" value="{{user}} {{userId}} {{convId}}" name="btnMessages">Envoyer</button>
+    <button type="button" id="btnMess" value="{{user}} /{{userId}} /{{convId}} /{{socketUser}} /{{socketDest}}" name="btnMessages">Envoyer</button>
   </section>
 </main>

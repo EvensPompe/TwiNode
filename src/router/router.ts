@@ -46,7 +46,7 @@ app.post("/newTwiNode", upload.fields([{ name: 'imgtweet' }, { name: 'videotweet
   let imgsPath: string[] = verif(req.files ?.imgtweet);
   let videosPath: string[] = verif(req.files ?.videotweet);
 
-  if (imgsPath.length == 0 && videosPath == 0 && !req.body ?.tweet) {
+  if (imgsPath.length == 0 && videosPath.length == 0 && (!req.body ?.tweet || req.body ?.tweet.trim() === "")) {
     res.redirect("/");
   } else {
     let tweet = new Tweet(req.body ?.tweet, imgsPath, videosPath, req.session ?.iduser);
@@ -75,13 +75,13 @@ app.get('/notification', (req, res) => {
 
 app.get('/messages', (req, res) => {
   db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
-    db.default.conversations.find({ user: req.session ?.iduser}, (err: any, convs: any) => {
+    db.default.conversations.find({$or:[{ user: req.session ?.iduser},{dest:req.session ?.iduser}]}).populate("dest","-mdp -token -estActif -nom -prenom").exec((err: any, convs: any) => {
       if (req.session ?.token) {
         res.render('messages', {
           isConnected: true,
           user: user.pseudo,
           userId: req.session ?.iduser,
-          convs: convs,
+          convs: convs
         });
       } else {
         res.redirect("/connection");
@@ -99,18 +99,30 @@ app.get('/message', (req, res) => {
         return id;
       }
     }
-    let newConv = verifConv(req.session?.actConv);
-    let oldConv = verifConv(req.query?.convId);
+    let newConv = verifConv(req.session ?.actConv);
+    let oldConv = verifConv(req.query ?.convId);
     req.session.actConv = oldConv || newConv;
-    db.default.conversations.findById(req.session?.actConv, (err: any, conv: any) => {
+    db.default.conversations.findById(req.session ?.actConv).populate("dest", "-mdp -token -estActif -nom -prenom").populate("user", "-mdp -token -estActif -nom -prenom").exec((err: any, conv: any) => {
+      function Verifsocket(socketid:string) {
+        if (socketid == conv.dest.socketUser) {
+          return conv.user.socketUser;
+        }else{
+          return socketid;
+        }
+      }
+      let socketUser = Verifsocket(user.socketUser);
+      //console.log(socketUser,conv.dest.socketUser,conv.dest.socketUser == user.socketUser);
+
       if (req.session ?.token) {
         res.render('message', {
           isConnected: true,
           user: user.pseudo,
           userId: req.session ?.iduser,
           convId: conv._id,
-          dest: conv.dest,
-          messages: conv.messages
+          dest: conv.dest.pseudo,
+          messages: conv.messages,
+          socketUser: socketUser,
+          socketDest: conv.dest.socketUser
         });
       } else {
         res.redirect("/connection");
@@ -120,7 +132,7 @@ app.get('/message', (req, res) => {
 })
 
 app.post('/newConv', (req, res) => {
-  db.default.conversations.create({ dest: req.body.rechConv, messages: [], user: req.session ?.iduser}, (err: any, conv: any) => {
+  db.default.conversations.create({ dest: req.query.id, messages: [], user: req.session ?.iduser}, (err: any, conv: any) => {
     req.session.actConv = conv._id;
     res.redirect('/message')
   })
@@ -346,7 +358,7 @@ app.post('/parametres/desactivation', (req, res) => {
           Votre compte a été désactivé avec succès !
           Si toutefois vous n'êtes pas à l'origine de cette désactivation.
           Vous pouvez annuler le processus en vous connectant via le lien ci-dessus :
-          http://localhost:3001/user/annulation?&jwt=${tokenjwt}
+          http://localhost:3000/user/annulation?&jwt=${tokenjwt}
           Vous avez jusqu'à 30 jours pour annuler.
            À très bientôt !
 
@@ -458,7 +470,7 @@ app.post('/inscription', (req, res) => {
             mail.sendMail(newUser.Email, "Demande d'inscription à TwiNode", `Hello ${newUser.Pseudo},
            votre nouveau compte a été créé avec succès !
            Pour confirmer l'inscription, cliquez sur le lien ci-dessous :
-           http://localhost:3001/user/confirmation?&jwt=${tokenjwt}
+           http://localhost:3000/user/confirmation?&jwt=${tokenjwt}
            Attention: Vous avez dix minutes pour confirmer votre compte. Si vous n'êtes pas à l'origine, ignorer le message !
            À très bientôt !
 
@@ -488,7 +500,7 @@ app.post('/inscription', (req, res) => {
         mail.sendMail(user.email, "Redemande d'inscription à TwiNode", `Hello ${user.pseudo},
        votre compte est déjà créé, mais il n'est pas confirmé !
        Pour confirmer l'inscription, cliquez sur le lien ci-dessous :
-       http://localhost:3001/user/confirmation?&jwt=${tokenjwt}
+       http://localhost:3000/user/confirmation?&jwt=${tokenjwt}
        Attention: Vous avez dix minutes pour confirmer votre compte. Si vous n'êtes pas à l'origine, ignorer le message !
        À très bientôt !
 
@@ -522,5 +534,6 @@ app.get('/deconnection', (req, res) => {
   req.session = null
   res.redirect("/")
 })
+
 
 export default app;

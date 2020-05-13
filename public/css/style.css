@@ -2,3 +2,45 @@
   height: 78vh;
   overflow: auto;
 }
+
+.margTop{
+  margin-top: 10px;
+}
+
+.ctn-conv{
+  height: 50px;
+  font-size: 20px;
+}
+
+.ctn-conv:hover{
+  background: grey;
+  transition-duration: 0.5s;
+  cursor: pointer;
+}
+
+.ctn-conv:active{
+  background: black;
+  color: white;
+}
+
+.ulAuto{
+  width: 100%;
+}
+
+.notVisible{
+  visibility: hidden;
+}
+.ulAuto li{
+  position: absolute;
+  z-index: 100000;
+  list-style: none;
+  transform: translate(-40px,0);
+  width: 96%;
+  font-size: 20px;
+  height: 30px;
+}
+
+ul li:hover{
+  background: rgba(52, 58, 64, 0.5);
+  cursor: pointer;
+}
