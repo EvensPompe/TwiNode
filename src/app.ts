@@ -1,5 +1,9 @@
 import Server from './server';
 
-const server = new Server(3000);
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const server = new Server(process.env.PORT);
 
 server.start();

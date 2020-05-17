@@ -26,8 +26,8 @@ process.env.SECRET_KEY = "secret";
 
 const app = express();
 
-app.get('/', function(req, res) {
-  db.default.tweetNode.find({}).populate("user", "-mdp -token -estActif -nom -prenom").exec((err, data) => {
+app.get('/', function(req:express.Request, res:express.Response) {
+  db.default.tweetNode.find({}).populate("user", "-mdp -token -estActif -nom -prenom").exec((err:any, data) => {
     if (req.session ?.token) {
       res.render('home', {
         isConnected: true,
@@ -42,7 +42,7 @@ app.get('/', function(req, res) {
   })
 });
 
-app.post("/newTwiNode", upload.fields([{ name: 'imgtweet' }, { name: 'videotweet' }]), (req, res) => {
+app.post("/newTwiNode", upload.fields([{ name: 'imgtweet' }, { name: 'videotweet' }]), (req:express.Request, res:express.Response) => {
   let imgsPath: string[] = verif(req.files ?.imgtweet);
   let videosPath: string[] = verif(req.files ?.videotweet);
 
@@ -63,7 +63,7 @@ app.post("/newTwiNode", upload.fields([{ name: 'imgtweet' }, { name: 'videotweet
   }
 });
 
-app.get('/notification', (req, res) => {
+app.get('/notification', (req:express.Request, res:express.Response) => {
   if (req.session ?.token) {
     res.render('notification', {
       isConnected: true
@@ -73,7 +73,7 @@ app.get('/notification', (req, res) => {
   }
 })
 
-app.get('/messages', (req, res) => {
+app.get('/messages', (req:express.Request, res:express.Response) => {
   db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
     db.default.conversations.find({$or:[{ user: req.session ?.iduser},{dest:req.session ?.iduser}]}).populate("dest","-mdp -token -estActif -nom -prenom").exec((err: any, convs: any) => {
       if (req.session ?.token) {
@@ -90,7 +90,7 @@ app.get('/messages', (req, res) => {
   })
 })
 
-app.get('/message', (req, res) => {
+app.get('/message', (req:express.Request, res:express.Response) => {
   db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
     function verifConv(id: string) {
       if (!id) {
@@ -131,14 +131,14 @@ app.get('/message', (req, res) => {
   })
 })
 
-app.post('/newConv', (req, res) => {
+app.post('/newConv', (req:express.Request, res:express.Response) => {
   db.default.conversations.create({ dest: req.query.id, messages: [], user: req.session ?.iduser}, (err: any, conv: any) => {
     req.session.actConv = conv._id;
     res.redirect('/message')
   })
 })
 
-app.get('/profil', (req, res) => {
+app.get('/profil', (req:express.Request, res:express.Response) => {
   db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
     if (req.session ?.token) {
       res.render('profil', {
@@ -152,7 +152,7 @@ app.get('/profil', (req, res) => {
   })
 })
 
-app.get('/profil/mes_twinodes', (req, res) => {
+app.get('/profil/mes_twinodes', (req:express.Request, res:express.Response) => {
   db.default.tweetNode.find({ user: req.session ?.iduser }).populate("user", "-mdp -token -estActif -nom -prenom").exec((err: any, tweets: any) => {
     db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
       if (req.session ?.token) {
@@ -170,7 +170,7 @@ app.get('/profil/mes_twinodes', (req, res) => {
   })
 })
 
-app.get('/profil/mes_reponses', (req, res) => {
+app.get('/profil/mes_reponses', (req:express.Request, res:express.Response) => {
   db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
     if (req.session ?.token) {
       res.render('profil', {
@@ -185,7 +185,7 @@ app.get('/profil/mes_reponses', (req, res) => {
   })
 })
 
-app.get('/profil/aime', (req, res) => {
+app.get('/profil/aime', (req:express.Request, res:express.Response) => {
   db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
     if (req.session ?.token) {
       res.render('profil', {
@@ -200,7 +200,7 @@ app.get('/profil/aime', (req, res) => {
   })
 })
 
-app.get('/profil/modification', (req, res) => {
+app.get('/profil/modification', (req:express.Request, res:express.Response) => {
   db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
     if (req.session ?.token) {
       res.render('profil', {
@@ -215,7 +215,7 @@ app.get('/profil/modification', (req, res) => {
   })
 })
 
-app.post('/profil/modification', upload.single('newBanniere'), (req, res) => {
+app.post('/profil/modification', upload.single('newBanniere'), (req:express.Request, res:express.Response) => {
   let modifResult = modif(req.file ?.path, req.body ?.newPseudo);
   db.default.user.findByIdAndUpdate(req.session ?.iduser, modifResult, { new: true }, (err: any, user: any) => {
     if (err) {
@@ -226,7 +226,7 @@ app.post('/profil/modification', upload.single('newBanniere'), (req, res) => {
   })
 })
 
-app.get('/parametres', (req, res) => {
+app.get('/parametres', (req:express.Request, res:express.Response) => {
   if (req.session ?.token) {
     res.render('parametres', {
       isConnected: true
@@ -237,7 +237,7 @@ app.get('/parametres', (req, res) => {
 })
 
 
-app.get('/parametres/pseudo', (req, res) => {
+app.get('/parametres/pseudo', (req:express.Request, res:express.Response) => {
   db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
     if (req.session ?.token) {
       res.render('parametres', {
@@ -251,7 +251,7 @@ app.get('/parametres/pseudo', (req, res) => {
   })
 })
 
-app.post('/parametres/pseudo', (req, res) => {
+app.post('/parametres/pseudo', (req:express.Request, res:express.Response) => {
   if (req.session ?.pseudo == req.body ?.newPseudo) {
     res.redirect("/parametres/pseudo");
   }
@@ -261,7 +261,7 @@ app.post('/parametres/pseudo', (req, res) => {
   })
 })
 
-app.get('/parametres/email', (req, res) => {
+app.get('/parametres/email', (req:express.Request, res:express.Response) => {
   db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
     if (req.session ?.token) {
       res.render('parametres', {
@@ -275,7 +275,7 @@ app.get('/parametres/email', (req, res) => {
   })
 })
 
-app.post('/parametres/email', (req, res) => {
+app.post('/parametres/email', (req:express.Request, res:express.Response) => {
   if (req.session ?.email == req.body ?.newEmail) {
     res.redirect("/parametres/email");
   }
@@ -285,7 +285,7 @@ app.post('/parametres/email', (req, res) => {
   })
 })
 
-app.get('/parametres/mdp', (req, res) => {
+app.get('/parametres/mdp', (req:express.Request, res:express.Response) => {
   if (req.session ?.token) {
     res.render('parametres', {
       isConnected: true,
@@ -296,7 +296,7 @@ app.get('/parametres/mdp', (req, res) => {
   }
 })
 
-app.post('/parametres/mdp', (req, res) => {
+app.post('/parametres/mdp', (req:express.Request, res:express.Response) => {
   db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
     if (bcrypt.compareSync(req.body ?.oldMdp, user.mdp)) {
       if (req.body ?.newMdp == req.body ?.reNewMdp) {
@@ -322,7 +322,7 @@ app.post('/parametres/mdp', (req, res) => {
   })
 })
 
-app.get('/parametres/desactivation', (req, res) => {
+app.get('/parametres/desactivation', (req:express.Request, res:express.Response) => {
   if (req.session ?.token) {
     res.render('parametres', {
       isConnected: true,
@@ -333,7 +333,7 @@ app.get('/parametres/desactivation', (req, res) => {
   }
 })
 
-app.post('/parametres/desactivation', (req, res) => {
+app.post('/parametres/desactivation', (req:express.Request, res:express.Response) => {
   if (req.body ?.checkDesact) {
     db.default.user.findById(req.session ?.iduser, (err: any, user: any) => {
       if (err) {
@@ -358,7 +358,7 @@ app.post('/parametres/desactivation', (req, res) => {
           Votre compte a été désactivé avec succès !
           Si toutefois vous n'êtes pas à l'origine de cette désactivation.
           Vous pouvez annuler le processus en vous connectant via le lien ci-dessus :
-          http://localhost:3000/user/annulation?&jwt=${tokenjwt}
+          http://localhost:${process.env.PORT}/user/annulation?&jwt=${tokenjwt}
           Vous avez jusqu'à 30 jours pour annuler.
            À très bientôt !
 
@@ -375,7 +375,7 @@ app.post('/parametres/desactivation', (req, res) => {
   }
 })
 
-app.get("/user/annulation", (req, res) => {
+app.get("/user/annulation", (req:express.Request, res:express.Response) => {
   jwt.verify(req.query.jwt, "annule le secret", (err: any, data: any) => {
     if (err) {
       res.redirect("/connection")
@@ -403,7 +403,7 @@ app.get("/user/annulation", (req, res) => {
   })
 })
 
-app.get('/connection', (req, res) => {
+app.get('/connection', (req:express.Request, res:express.Response) => {
   if (req.session ?.token) {
     res.redirect('/')
   } else {
@@ -411,7 +411,7 @@ app.get('/connection', (req, res) => {
   }
 })
 
-app.post('/connection', (req, res) => {
+app.post('/connection', (req:express.Request, res:express.Response) => {
   db.default.user.findOne({ email: req.body.email }, (err: any, user: any) => {
     if (!user) {
       res.render("connection", {
@@ -435,7 +435,7 @@ app.post('/connection', (req, res) => {
   })
 });
 
-app.get('/inscription', (req, res) => {
+app.get('/inscription', (req:express.Request, res:express.Response) => {
   if (req.session ?.token) {
     res.redirect('/')
   } else {
@@ -443,7 +443,7 @@ app.get('/inscription', (req, res) => {
   }
 })
 
-app.post('/inscription', (req, res) => {
+app.post('/inscription', (req:express.Request, res:express.Response) => {
   db.default.user.findOne({ email: req.body.email }, (err: any, user: any) => {
     if (err) {
       console.log(err);
@@ -470,7 +470,7 @@ app.post('/inscription', (req, res) => {
             mail.sendMail(newUser.Email, "Demande d'inscription à TwiNode", `Hello ${newUser.Pseudo},
            votre nouveau compte a été créé avec succès !
            Pour confirmer l'inscription, cliquez sur le lien ci-dessous :
-           http://localhost:3000/user/confirmation?&jwt=${tokenjwt}
+           http://localhost:${process.env.PORT}/user/confirmation?&jwt=${tokenjwt}
            Attention: Vous avez dix minutes pour confirmer votre compte. Si vous n'êtes pas à l'origine, ignorer le message !
            À très bientôt !
 
@@ -500,7 +500,7 @@ app.post('/inscription', (req, res) => {
         mail.sendMail(user.email, "Redemande d'inscription à TwiNode", `Hello ${user.pseudo},
        votre compte est déjà créé, mais il n'est pas confirmé !
        Pour confirmer l'inscription, cliquez sur le lien ci-dessous :
-       http://localhost:3000/user/confirmation?&jwt=${tokenjwt}
+       http://localhost:${process.env.PORT}/user/confirmation?&jwt=${tokenjwt}
        Attention: Vous avez dix minutes pour confirmer votre compte. Si vous n'êtes pas à l'origine, ignorer le message !
        À très bientôt !
 
@@ -512,7 +512,7 @@ app.post('/inscription', (req, res) => {
   })
 })
 
-app.get("/user/confirmation", (req, res) => {
+app.get("/user/confirmation", (req:express.Request, res:express.Response) => {
   jwt.verify(req.query.jwt, "secret", (err: any, jwtData: any) => {
     if (err) {
       console.log(err);
@@ -530,7 +530,7 @@ app.get("/user/confirmation", (req, res) => {
   });
 })
 
-app.get('/deconnection', (req, res) => {
+app.get('/deconnection', (req:express.Request, res:express.Response) => {
   req.session = null
   res.redirect("/")
 })

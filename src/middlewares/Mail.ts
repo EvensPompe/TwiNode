@@ -8,14 +8,14 @@ export default class Mail {
       port: 465,
       secure: true,
       auth: {
-        user: 'twinode@gmail.com',
-        pass: 'TwiNode95310'
+        user: process.env.MAIL,
+        pass: process.env.PASS
       }
     });
   }
   sendMail(to: string, subject: string, content: string) {
     let options = {
-      from: 'twinode@gmail.com',
+      from: process.env.MAIL,
       to: to,
       subject: subject,
       text: content
