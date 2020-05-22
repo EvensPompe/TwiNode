@@ -6,7 +6,7 @@ import applications from './router/router';
 import cookieSession from 'cookie-session';
 import cookieParser from 'cookie-parser';
 import moment from './middlewares/moment';
-import socketIO from 'socket.io';
+import * as socketIO from 'socket.io';
 import http from 'http';
 import * as db from './database/db';
 
@@ -55,8 +55,8 @@ export default class Server {
 
     app.use('/', applications)
 
-    io.on('connection', (socket: socketIO.socket) => {
-      socket.on('message', (data) => {
+    io.on('connection', (socket:any) => {
+      socket.on('message', (data:any) => {
         let newMessage = { message: data.message, user: data.user, date: new Date() };
         db.default.conversations.findByIdAndUpdate(data.convId, { $push: { messages: newMessage } },{new:true}).populate("dest", "-mdp -token -estActif -nom -prenom").populate("user", "-mdp -token -estActif -nom -prenom").exec((err: any, message: any) => {
           if (err) {
@@ -81,7 +81,7 @@ export default class Server {
         })
       });
 
-      socket.on('socketUser',(data)=>{
+      socket.on('socketUser',(data:any)=>{
         db.default.user.findByIdAndUpdate(data.user,{socketUser:data.socketUser},{new:true},(err,result)=>{
         //   db.default.conversations.findById(data.convId).populate("dest", "-mdp -token -estActif -nom -prenom").populate("user", "-mdp -token -estActif -nom -prenom").exec((err,conv)=>{
         //     if (conv.dest.socketUser == data.dest) {
@@ -93,10 +93,13 @@ export default class Server {
         });
       })
 
-      socket.on('searchUser', (data) => {
+      socket.on('searchUser', (data:any) => {
         db.default.user.find({}, (err, users) => {
           let allUsers = users.map(user => {
-            return { pseudo: user.pseudo, id: user._id };
+            if(user.hasOwnProperty('pseudo'))
+            {
+              return { pseudo: user.pseudo, id: user._id };
+            }
           })
 
           let result = allUsers.filter(user => {

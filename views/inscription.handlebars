@@ -1,4 +1,9 @@
 <main>
+  {{#if error}}
+  <div class="alert alert-danger" role="alert">
+    {{message}}
+  </div>
+  {{/if}}
   <form action="/inscription" method="post">
     <div class="form-row" style="margin-right: 0px">
       <div class="col-auto">
@@ -20,21 +25,25 @@
         </div>
       </div>
     </div>
-  <div class="form-group">
-    <label for="inputEmail">Email</label>
-    <input type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" name="email" placeholder="Entrer l'email" required>
-  </div>
-  <div class="form-group">
-    <label for="inputMdp">Mot de passe</label>
-    <input type="password" class="form-control" id="inputMdp" name="mdp" placeholder="Mot de passe" minlength="8" maxlength="20" size="20" pattern="[0-9a-zA-Z]{8,20}" required>
-    <small id="passwordHelpBlock" class="form-text text-muted">
-  Votre mot de passe doit comporter de 8 à 20 caractères, contenir des lettres et des chiffres, et ne doit pas contenir d'espaces, de caractères spéciaux ou d'emoji.
-</small>
-  </div>
-  <div class="form-group">
-    <label for="exampleInputPassword1">Confirmer votre Mot de passe</label>
-    <input type="password" class="form-control" id="inputMdpConfirm" name="confirm" placeholder="Mot de passe" minlength="8" maxlength="20" size="20" required>
-  </div>
-  <button type="submit" class="btn btn-primary">S'inscrire</button>
-</form>
+    <div class="form-group">
+      <label for="inputEmail">Email</label>
+      <input type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" name="email"
+        placeholder="Entrer l'email" required>
+    </div>
+    <div class="form-group">
+      <label for="inputMdp">Mot de passe</label>
+      <input type="password" class="form-control" id="inputMdp" name="mdp" placeholder="Mot de passe" minlength="8"
+        maxlength="20" size="20" pattern="[0-9a-zA-Z]{8,20}" required>
+      <small id="passwordHelpBlock" class="form-text text-muted">
+        Votre mot de passe doit comporter de 8 à 20 caractères, contenir des lettres et des chiffres, et ne doit pas
+        contenir d'espaces, de caractères spéciaux ou d'emoji.
+      </small>
+    </div>
+    <div class="form-group">
+      <label for="exampleInputPassword1">Confirmer votre Mot de passe</label>
+      <input type="password" class="form-control" id="inputMdpConfirm" name="confirm" placeholder="Mot de passe"
+        minlength="8" maxlength="20" size="20" required>
+    </div>
+    <button type="submit" class="btn btn-primary">S'inscrire</button>
+  </form>
 </main>

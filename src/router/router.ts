@@ -13,7 +13,6 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage })
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import * as nodemailer from 'nodemailer';
 import User from '../middlewares/NodeUser';
 import Mail from '../middlewares/Mail';
 import Tweet from '../middlewares/Tweet';
@@ -21,8 +20,6 @@ import verif from '../middlewares/verif';
 import modif from '../middlewares/modif';
 
 import { TokenGenerator, TokenBase } from 'ts-token-generator';
-
-process.env.SECRET_KEY = "secret";
 
 const app = express();
 
@@ -43,8 +40,10 @@ app.get('/', function(req:express.Request, res:express.Response) {
 });
 
 app.post("/newTwiNode", upload.fields([{ name: 'imgtweet' }, { name: 'videotweet' }]), (req:express.Request, res:express.Response) => {
-  let imgsPath: string[] = verif(req.files ?.imgtweet);
-  let videosPath: string[] = verif(req.files ?.videotweet);
+  let imgFiles: Array<express.Request> = req.files.imgtweet;
+  let videoFiles: Array<express.Request> = req.files.videotweet;
+  let imgsPath: string[] = verif(imgFiles);
+  let videosPath: string[] = verif(videoFiles);
 
   if (imgsPath.length == 0 && videosPath.length == 0 && (!req.body ?.tweet || req.body ?.tweet.trim() === "")) {
     res.redirect("/");
@@ -99,8 +98,8 @@ app.get('/message', (req:express.Request, res:express.Response) => {
         return id;
       }
     }
-    let newConv = verifConv(req.session ?.actConv);
-    let oldConv = verifConv(req.query ?.convId);
+    let newConv = verifConv(req.session.actConv);
+    let oldConv = verifConv(req.query.convId);
     req.session.actConv = oldConv || newConv;
     db.default.conversations.findById(req.session ?.actConv).populate("dest", "-mdp -token -estActif -nom -prenom").populate("user", "-mdp -token -estActif -nom -prenom").exec((err: any, conv: any) => {
       function Verifsocket(socketid:string) {
@@ -256,7 +255,7 @@ app.post('/parametres/pseudo', (req:express.Request, res:express.Response) => {
     res.redirect("/parametres/pseudo");
   }
   db.default.user.findOneAndUpdate({ pseudo: req.session ?.pseudo }, { pseudo: req.body ?.newPseudo }, { new: true }, (err: any, user: any) => {
-    req.session ?.pseudo = req.body ?.newPseudo
+    req.session.pseudo = req.body.newPseudo
     res.redirect("/parametres/pseudo");
   })
 })
@@ -280,7 +279,7 @@ app.post('/parametres/email', (req:express.Request, res:express.Response) => {
     res.redirect("/parametres/email");
   }
   db.default.user.findOneAndUpdate({ email: req.session ?.email }, { email: req.body ?.newEmail }, { new: true }, (err: any, user: any) => {
-    req.session ?.email = req.body ?.newEmail
+    req.session.email = req.body ?.newEmail
     res.redirect("/parametres/email");
   })
 })
@@ -352,7 +351,7 @@ app.post('/parametres/desactivation', (req:express.Request, res:express.Response
                 token: user.token
               }
 
-              var tokenjwt = jwt.sign(userJwt, "annule le secret", { expiresIn: "30d" });
+              var tokenjwt = jwt.sign(userJwt, process.env.SECRET, { expiresIn: "30d" });
               let mail = new Mail();
               mail.sendMail(user.email, `Désactivation de votre compte`, `Hello ${user.pseudo},
           Votre compte a été désactivé avec succès !
@@ -376,7 +375,8 @@ app.post('/parametres/desactivation', (req:express.Request, res:express.Response
 })
 
 app.get("/user/annulation", (req:express.Request, res:express.Response) => {
-  jwt.verify(req.query.jwt, "annule le secret", (err: any, data: any) => {
+  let tokenjwt = req.query.jwt;
+  jwt.verify(tokenjwt, process.env.SECRET, (err: any, data: any) => {
     if (err) {
       res.redirect("/connection")
     } else {
@@ -390,9 +390,9 @@ app.get("/user/annulation", (req:express.Request, res:express.Response) => {
                 res.redirect("/connection")
               } else {
                 req.session.iduser = user._id
-                req.session ?.pseudo = user.pseudo
-                req.session ?.email = user.email
-                req.session ?.token = user.token
+                req.session.pseudo = user.pseudo
+                req.session.email = user.email
+                req.session.token = user.token
                 res.redirect("/profil")
               }
             })
@@ -420,10 +420,10 @@ app.post('/connection', (req:express.Request, res:express.Response) => {
       })
     } else {
       if (bcrypt.compareSync(req.body.mdp, user.mdp)) {
-        req.session.iduser = user._id
-        req.session ?.pseudo = user.pseudo
-       req.session ?.email = user.email
-       req.session ?.token = user.token
+       req.session.iduser = user._id
+       req.session.pseudo = user.pseudo
+       req.session.email = user.email
+       req.session.token = user.token
        res.redirect("/profil")
       } else {
         res.render("connection", {
@@ -465,7 +465,7 @@ app.post('/inscription', (req:express.Request, res:express.Response) => {
               token: newUser.Token
             }
 
-            var tokenjwt = jwt.sign(userJwt, "secret", { expiresIn: 600 });
+            var tokenjwt = jwt.sign(userJwt, process.env.SECRET_KEY, { expiresIn: 600 });
             let mail = new Mail();
             mail.sendMail(newUser.Email, "Demande d'inscription à TwiNode", `Hello ${newUser.Pseudo},
            votre nouveau compte a été créé avec succès !
@@ -495,7 +495,7 @@ app.post('/inscription', (req:express.Request, res:express.Response) => {
           token: user.token
         }
 
-        var tokenjwt = jwt.sign(userJwt, "secret", { expiresIn: 600 });
+        var tokenjwt = jwt.sign(userJwt, process.env.SECRET_KEY, { expiresIn: 600 });
         let mail = new Mail();
         mail.sendMail(user.email, "Redemande d'inscription à TwiNode", `Hello ${user.pseudo},
        votre compte est déjà créé, mais il n'est pas confirmé !
@@ -513,18 +513,18 @@ app.post('/inscription', (req:express.Request, res:express.Response) => {
 })
 
 app.get("/user/confirmation", (req:express.Request, res:express.Response) => {
-  jwt.verify(req.query.jwt, "secret", (err: any, jwtData: any) => {
+  jwt.verify(req.query.jwt, process.env.SECRET_KEY, (err: any, jwtData: any) => {
     if (err) {
       console.log(err);
       res.redirect('/inscription')
     }
     let conditionConf: object = { email: jwtData.email, token: jwtData.token };
     let update: object = { estActif: true };
-    db.default.user.findOneAndUpdate(conditionConf, update, { new: true }, (err, data) => {
-      req.session ?.iduser = data ?._id
-      req.session ?.pseudo = data ?.pseudo
-      req.session ?.email = data ?.email
-      req.session ?.token = data ?.token
+    db.default.user.findOneAndUpdate(conditionConf, update, { new: true }, (err:any, data) => {
+      req.session.iduser = data._id;
+      req.session.pseudo = data.pseudo;
+      req.session.email = data.email;
+      req.session.token = data.token;
       res.redirect('/')
     })
   });

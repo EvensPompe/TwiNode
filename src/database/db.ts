@@ -3,6 +3,8 @@ import _user from '../schema/user';
 import _tweetNode from '../schema/tweetNode';
 import _conversation from '../schema/conversation';
 
+import InterUser from "../interfaces/InterUser";
+
 let option:object = {
   useNewUrlParser: true,
   useFindAndModify: false,
@@ -18,7 +20,7 @@ db.once('open', function() {
   console.log("C'est connecté !");
 });
 
-const user = mongoose.model('user',_user);
+const user = mongoose.model<InterUser>('user',_user);
 const tweetNode = mongoose.model('tweetNode', _tweetNode);
 const conversations = mongoose.model('conversation', _conversation);
 
