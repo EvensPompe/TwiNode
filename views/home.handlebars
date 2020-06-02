@@ -1,4 +1,9 @@
 <main>
+  {{#if success}}
+  <div class="alert alert-success" role="alert">
+    {{message}}
+    </div>
+  {{/if}}
   {{#if isConnected}}
     {{>tweetBar}}
   {{else}}

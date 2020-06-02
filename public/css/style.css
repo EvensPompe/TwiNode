@@ -1,6 +1,7 @@
 .ctn{
   height: 78vh;
   overflow: auto;
+  scroll-behavior: smooth;
 }
 
 .margTop{
@@ -23,24 +24,36 @@
   color: white;
 }
 
-.ulAuto{
+.divAuto{
   width: 100%;
+  z-index: 1234567890;
+  position: absolute;
 }
 
 .notVisible{
   visibility: hidden;
 }
-.ulAuto li{
-  position: absolute;
-  z-index: 100000;
+.divAuto div{
   list-style: none;
-  transform: translate(-40px,0);
-  width: 96%;
+  width: 100%;
+  height: 35px;
   font-size: 20px;
-  height: 30px;
+  border: black solid 1.5px;
+  font-weight: bolder;
+  background: rgba(52, 58, 64, 1);
+  color: white;
 }
 
-ul li:hover{
-  background: rgba(52, 58, 64, 0.5);
+.divAuto div:hover{
+  border: rgba(52, 58, 64, 1) solid 1.5px;
+  background:black;
   cursor: pointer;
+  color: white;
+  transition: linear 0.5s;
+}
+
+.divAuto div:active{
+  background:white;
+  cursor: pointer;
+  color: black;
 }

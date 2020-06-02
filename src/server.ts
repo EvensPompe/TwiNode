@@ -95,18 +95,12 @@ export default class Server {
 
       socket.on('searchUser', (data:any) => {
         db.default.user.find({}, (err, users) => {
-          let allUsers = users.map(user => {
-            if(user.hasOwnProperty('pseudo'))
-            {
-              return { pseudo: user.pseudo, id: user._id };
-            }
-          })
-
-          let result = allUsers.filter(user => {
-            return user.pseudo.toLowerCase().includes(data.inputRech.toLowerCase().toString()) == true;
+          let result = users.map(user => {
+            return { pseudo: user.pseudo, id: user._id };
           });
           socket.emit('searchResult', {
-            result: result
+            result: result,
+            inputRech:data.inputRech
           })
         })
       });

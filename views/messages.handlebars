@@ -1,11 +1,17 @@
 <main>
+  {{#if error}}
+  <div class="alert alert-danger" role="alert">
+    {{message}}
+  </div>
+  {{/if}}
   <form class="row container-fluid searchForm" method="post" action="/newConv">
     <div class="col">
-      <input class="form-control mr-sm-2" required name="rechConv" type="search" placeholder="Recherche" id="rechConv" aria-label="Search">
-      {{> autoComplete allUsers=allUsers}}
+      <input class="form-control mr-sm-2" required name="rechConv" type="search" placeholder="Recherche" id="rechConv"
+        aria-label="Search">
+      {{> autoComplete}}
     </div>
     <div class="col d-flex justify-content-center align-items-start">
-      <button type="submit">Nouvelle conversation</button>
+      <button type="submit" class="btn btn-secondary">Nouvelle conversation</button>
     </div>
   </form>
   {{> conversations convs=convs}}

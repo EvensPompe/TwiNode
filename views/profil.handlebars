@@ -2,19 +2,24 @@
   <div>
     <img src="{{banniere}}" id="banniere" class="img-fluid" alt="bannière {{banniere}}" width="100%" height="500px">
   </div>
+  {{#if success}}
+  <div class="alert alert-success" role="alert">
+    <h3>{{message}}</h3>
+  </div>
+  {{/if}}
   <nav class="navbar navbar-light bg-light">
     {{#unless modif}}
-      <h2>{{pseudo}}</h2>
-      <a type="button" name="button" href="/profil/modification" class="btn btn-lg btn-secondary">éditer le profil</a>
+    <h2>{{pseudo}}</h2>
+    <a type="button" name="button" href="/profil/modification" class="btn btn-lg btn-secondary">éditer le profil</a>
     {{else}}
-      <form class="container-fluid" action="/profil/modification" enctype="multipart/form-data" method="post">
-        <div>
-          <input type="text" name="newPseudo" class="form-control-plaintext" placeholder="{{pseudo}}">
-        </div>
-        <input type="file" name="newBanniere" id="newBanniere" accept="image/*">
-        <button type="submit" class="btn btn-lg btn-secondary">Enregistrer</button>
-        <a type="button" name="button" href="/profil" class="btn btn-lg btn-secondary">Annuler</a>
-      </form>
+    <form class="container-fluid" action="/profil/modification" enctype="multipart/form-data" method="post">
+      <div>
+        <input type="text" name="newPseudo" class="form-control-plaintext" placeholder="{{pseudo}}">
+      </div>
+      <input type="file" name="newBanniere" id="newBanniere" accept="image/*">
+      <button type="submit" class="btn btn-lg btn-secondary">Enregistrer</button>
+      <a type="button" name="button" href="/profil" class="btn btn-lg btn-secondary">Annuler</a>
+    </form>
     {{/unless}}
   </nav>
   <nav class="nav justify-content-around">
@@ -31,10 +36,10 @@
     </ul>
   </nav>
   {{#if mes_twinodes}}
-    {{> mesTwinodes tweets=tweets}}
+  {{> mesTwinodes tweets=tweets}}
   {{else if mes_reponses}}
-    {{> mesReponses}}
+  {{> mesReponses}}
   {{else if aime}}
-    {{> aime}}
+  {{> aime}}
   {{/if}}
 </main>

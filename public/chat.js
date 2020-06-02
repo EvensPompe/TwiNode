@@ -4,8 +4,9 @@ let inputMess = document.getElementById('inputMess'),
   btnMess = document.getElementById('btnMess'),
   convMess = document.getElementById('convMess'),
   rechConv = document.getElementById('rechConv'),
-  ctnAuto = document.querySelector('.ulAuto'),
+  ctnAuto = document.querySelector('.divAuto'),
   searchForm = document.querySelector('.searchForm'),
+  inputRechTwit = document.getElementById('inputRechTwit'),
   ctnConv = document.querySelectorAll('.ctn-conv');
 
 if (ctnConv) {
@@ -62,6 +63,14 @@ if (rechConv) {
   })
 }
 
+  if(inputRechTwit){
+  inputRechTwit.addEventListener("input",(e)=>{
+    socket.emit('searchUser', {
+      inputRechTwit: e.target.value
+    })
+  })
+}
+
 function getValueLi(pseudo, id) {
   console.log(pseudo, id);
   rechConv.value = pseudo;
@@ -69,34 +78,40 @@ function getValueLi(pseudo, id) {
   ctnAuto.classList.add('notVisible');
 }
 
+if (convMess) {
+  function scrollToButton(){
+    var lastMessage;
+    for (let index = 0; index < convMess.children.length; index++) {
+      if(index === convMess.children.length -1){
+        lastMessage = convMess.children[index];
+      }
+    }
+    convMess.scrollTop = lastMessage.offsetTop - 10; 
+  }
+  scrollToButton();
+} 
+
 socket.on('allMessages', (data) => {
-  // if (data) {
-  //   data.conv.messages.forEach((message) => {
-  //     if (data.conv.messages[data.conv.messages.length - 1] === message) {
-  //       let newDate = moment(message.date).format("DD/MM/YYYY HH:mm");
-  //       convMess.innerHTML += `<div class="row container-fluid d-flex justify-content-between">
-  //                   <p>${message.user} :</p>
-  //                   <p>${message.message}</p>
-  //                   <p>${newDate}</p>
-  //                 </div>`
-  //     }
-  //   });
-  // }
   let newDate = moment(data.conv.date).format("DD/MM/YYYY HH:mm");
   convMess.innerHTML += `<div class="row container-fluid d-flex justify-content-between">
                     <p>${data.conv.user} :</p>
                     <p>${data.conv.message}</p>
                     <p>${newDate}</p>
-                  </div>`
+                  </div>`;
+  scrollToButton();                
 })
 
 socket.on('searchResult', (data) => {
   if (rechConv.value == "" || data.result.length == 0) {
     ctnAuto.innerHTML = "";
   } else {
-    data.result.forEach((user) => {
+      let filterRes = data.result.filter(user => {
+          return user.pseudo.toLowerCase().includes(data.inputRech.toLowerCase().toString()) == true;
+      });
+      let result = filterRes.map((user)=>{ 
+       return `<div value="${user.id}" onclick="getValueLi('${user.pseudo}','${user.id}')">${user.pseudo}</div>`
+      }).join("");
       ctnAuto.classList.remove('notVisible');
-      ctnAuto.innerHTML += `<li value="${user.id}" onclick="getValueLi('${user.pseudo}','${user.id}')">${user.pseudo}</li>`;
-    });
+      ctnAuto.innerHTML = result;
   }
 })
