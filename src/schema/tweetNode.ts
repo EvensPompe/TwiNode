@@ -6,7 +6,8 @@ const tweetNode = new mongoose.Schema({
    imgtweet:[String],
    videotweet:[String],
    date:Date,
-   user:{type: Schema.Types.ObjectId,ref:'user'}
+   user:{type: Schema.Types.ObjectId,ref:'user'},
+   whoLiked:[{type: Schema.Types.ObjectId,ref:'user'}]
 });
 
 export default tweetNode;

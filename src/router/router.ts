@@ -29,6 +29,7 @@ app.get('/', function (req: express.Request, res: express.Response) {
       res.render('home', {
         isConnected: true,
         tweets: data,
+        user: req.session.iduser,
         success: req.session.success,
         message: req.session.message
       });

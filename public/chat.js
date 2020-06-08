@@ -7,6 +7,9 @@ let inputMess = document.getElementById('inputMess'),
   ctnAuto = document.querySelector('.divAuto'),
   searchForm = document.querySelector('.searchForm'),
   inputRechTwit = document.getElementById('inputRechTwit'),
+  ctnTweetHome = document.getElementById('ctnTweetHome'),
+  heartBtn = document.querySelectorAll('.fa-heart'),
+  tweetId = document.querySelectorAll('.tweetId'),
   ctnConv = document.querySelectorAll('.ctn-conv');
 
 if (ctnConv) {
@@ -19,14 +22,14 @@ if (ctnConv) {
 }
 
 if (btnMess) {
-  socket.on('connect',()=>{
+  socket.on('connect', () => {
     let user = btnMess.value;
     user = user.split(' /');
     var userId = user[1],
-        convId = user[2];
+      convId = user[2];
     socket.emit('socketUser', {
       socketUser: socket.id,
-      user:userId,
+      user: userId,
     })
   })
 
@@ -47,8 +50,8 @@ if (btnMess) {
         message: inputMess.value,
         user: userName,
         convId: convId,
-        socketUser:socketUser,
-        socketDest:socketDest
+        socketUser: socketUser,
+        socketDest: socketDest
       });
     }
     inputMess.value = "";
@@ -63,8 +66,8 @@ if (rechConv) {
   })
 }
 
-  if(inputRechTwit){
-  inputRechTwit.addEventListener("input",(e)=>{
+if (inputRechTwit) {
+  inputRechTwit.addEventListener("input", (e) => {
     socket.emit('searchUser', {
       inputRechTwit: e.target.value
     })
@@ -79,17 +82,55 @@ function getValueLi(pseudo, id) {
 }
 
 if (convMess) {
-  function scrollToButton(){
+  function scrollToButton() {
     var lastMessage;
     for (let index = 0; index < convMess.children.length; index++) {
-      if(index === convMess.children.length -1){
+      if (index === convMess.children.length - 1) {
         lastMessage = convMess.children[index];
       }
     }
-    convMess.scrollTop = lastMessage.offsetTop - 10; 
+    convMess.scrollTop = lastMessage.offsetTop - 10;
   }
   scrollToButton();
-} 
+}
+
+if (heartBtn) {
+  heartBtn.forEach((btn, index) => {
+    btn.addEventListener("click", (e) => {
+      if (e.target.className.includes("far")) {
+        socket.emit("like", {
+          user: ctnTweetHome.classList[3],
+          tweetId: tweetId[index].classList[2],
+          isLike: true
+        })
+        e.target.classList.replace("far", "fas");
+      } else {
+        socket.emit("like", {
+          user: ctnTweetHome.classList[3],
+          tweetId: tweetId[index].classList[2],
+          isLike: false
+        })
+        e.target.classList.replace("fas", "far");
+      }
+    });
+  });
+
+  socket.on("all likes of user", (data) => {
+    data.likes.forEach((like) => {
+      tweetId.forEach((tweet, i) => {
+        if (like == tweet.classList[2]) {
+          heartBtn[i].classList.replace("far", "fas")
+        }
+      });
+    });
+  });
+}
+
+if (ctnTweetHome) {
+  socket.emit("already liked", {
+    user: ctnTweetHome.classList[3]
+  })
+}
 
 socket.on('allMessages', (data) => {
   let newDate = moment(data.conv.date).format("DD/MM/YYYY HH:mm");
@@ -98,20 +139,20 @@ socket.on('allMessages', (data) => {
                     <p>${data.conv.message}</p>
                     <p>${newDate}</p>
                   </div>`;
-  scrollToButton();                
+  scrollToButton();
 })
 
 socket.on('searchResult', (data) => {
   if (rechConv.value == "" || data.result.length == 0) {
     ctnAuto.innerHTML = "";
   } else {
-      let filterRes = data.result.filter(user => {
-          return user.pseudo.toLowerCase().includes(data.inputRech.toLowerCase().toString()) == true;
-      });
-      let result = filterRes.map((user)=>{ 
-       return `<div value="${user.id}" onclick="getValueLi('${user.pseudo}','${user.id}')">${user.pseudo}</div>`
-      }).join("");
-      ctnAuto.classList.remove('notVisible');
-      ctnAuto.innerHTML = result;
+    let filterRes = data.result.filter(user => {
+      return user.pseudo.toLowerCase().includes(data.inputRech.toLowerCase().toString()) == true;
+    });
+    let result = filterRes.map((user) => {
+      return `<div value="${user.id}" onclick="getValueLi('${user.pseudo}','${user.id}')">${user.pseudo}</div>`
+    }).join("");
+    ctnAuto.classList.remove('notVisible');
+    ctnAuto.innerHTML = result;
   }
 })
