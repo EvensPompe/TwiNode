@@ -119,7 +119,10 @@ export default class Server {
 
                   } else {
                     db.default.user.findByIdAndUpdate(data.user, { $push: { tweetLiked: tweetLiked._id } }, { new: true }, (err: any, user: any) => {
-                      console.log(tweetLiked, user);
+                      io.emit("resetLikes",{
+                        resetlikes:tweetLiked.whoLiked.length,
+                        id:tweetLiked._id
+                      })
                     })
                   }
                 })
@@ -139,7 +142,10 @@ export default class Server {
 
                   } else {
                     db.default.user.findByIdAndUpdate(data.user, { $pull: { tweetLiked: tweetLiked._id } }, { new: true }, (err: any, user: any) => {
-                      console.log(tweetLiked, user);
+                      io.emit("resetLikes",{
+                        resetlikes:tweetLiked.whoLiked.length,
+                        id:tweetLiked._id
+                      })
                     })
                   }
                 })
@@ -163,6 +169,15 @@ export default class Server {
       socket.on('disconnect', () => {
 
       });
+
+      db.default.tweetNode.find({}).select("whoLiked").exec((err:any,likes:any)=>{
+        let reslikes:number[] = likes.map((value:any)=>{
+          return value.whoLiked.length;
+        })
+        socket.emit("likes",{
+          ArrayLikes:reslikes
+        })
+      })
     });
 
     server.listen(this.port, () => {

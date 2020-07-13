@@ -24,7 +24,7 @@ import { TokenGenerator, TokenBase } from 'ts-token-generator';
 const app = express();
 
 app.get('/', function (req: express.Request, res: express.Response) {
-  db.default.tweetNode.find({}).populate("user", "-mdp -token -estActif -nom -prenom").exec((err: any, data) => {
+  db.default.tweetNode.find({}).populate("user", "-mdp -token -estActif -nom -prenom").exec((err: any, data:any) => {
     if (req.session?.token) {
       res.render('home', {
         isConnected: true,

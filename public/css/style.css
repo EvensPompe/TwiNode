@@ -57,3 +57,20 @@
   cursor: pointer;
   color: black;
 }
+
+#ctnTweetHome{
+  display: flex;
+  flex-flow: wrap-reverse;
+}
+
+.card-body{
+  display: flex;
+}
+
+.likesDiv{
+  width: 10%;
+  height: 100%;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+}

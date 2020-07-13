@@ -10,6 +10,7 @@ let inputMess = document.getElementById('inputMess'),
   ctnTweetHome = document.getElementById('ctnTweetHome'),
   heartBtn = document.querySelectorAll('.fa-heart'),
   tweetId = document.querySelectorAll('.tweetId'),
+  likesDiv = document.querySelectorAll('.likesDiv'),
   ctnConv = document.querySelectorAll('.ctn-conv');
 
 if (ctnConv) {
@@ -124,6 +125,14 @@ if (heartBtn) {
       });
     });
   });
+
+  socket.on("resetLikes",(data)=>{
+    tweetId.forEach((div, i) => {
+      if (div.classList[2] == data.id) {
+        likesDiv[i].firstElementChild.textContent = data.resetlikes
+      }
+    });
+  })
 }
 
 if (ctnTweetHome) {
@@ -156,3 +165,11 @@ socket.on('searchResult', (data) => {
     ctnAuto.innerHTML = result;
   }
 })
+
+if (likesDiv) {
+  socket.on("likes",(data)=>{
+    likesDiv.forEach((div,i) => {
+      div.firstElementChild.textContent = data.ArrayLikes[i]
+    });
+  })
+}
