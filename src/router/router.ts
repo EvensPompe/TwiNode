@@ -44,8 +44,8 @@ app.get('/', function (req: express.Request, res: express.Response) {
 });
 
 app.post("/newTwiNode", upload.fields([{ name: 'imgtweet' }, { name: 'videotweet' }]), (req: express.Request, res: express.Response) => {
-  let imgFiles: Array<express.Request> = req.files.imgtweet;
-  let videoFiles: Array<express.Request> = req.files.videotweet;
+  let imgFiles: Array<express.Request> = (req["files"] as any).imgtweet;
+  let videoFiles: Array<express.Request> = (req["files"] as any).videotweet;
   let imgsPath: string[] = verif(imgFiles);
   let videosPath: string[] = verif(videoFiles);
 
@@ -394,7 +394,7 @@ app.post('/parametres/desactivation', (req: express.Request, res: express.Respon
 })
 
 app.get("/user/annulation", (req: express.Request, res: express.Response) => {
-  let tokenjwt = req.query.jwt;
+  let tokenjwt:string = req.query.jwt;
   jwt.verify(tokenjwt, process.env.SECRET, (err: any, data: any) => {
     if (err) {
       res.redirect("/connection")
@@ -540,7 +540,8 @@ app.post('/inscription', (req: express.Request, res: express.Response) => {
 })
 
 app.get("/user/confirmation", (req: express.Request, res: express.Response) => {
-  jwt.verify(req.query.jwt, process.env.SECRET_KEY, (err: any, jwtData: any) => {
+  let jwtToken:string = req.query.jwt;
+  jwt.verify(jwtToken, process.env.SECRET_KEY, (err: any, jwtData: any) => {
     if (err) {
       console.log(err);
       res.redirect('/inscription')

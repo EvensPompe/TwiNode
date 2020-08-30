@@ -1,7 +1,8 @@
 .ctn{
-  height: 78vh;
+  height: 77vh;
   overflow: auto;
   scroll-behavior: smooth;
+  margin-top: 10px;
 }
 
 .margTop{
@@ -10,7 +11,10 @@
 
 .ctn-conv{
   height: 50px;
-  font-size: 20px;
+  font-size: 25px;
+  width: auto;
+  margin-top: 10px;
+  border: 2px solid black;
 }
 
 .ctn-conv:hover{
@@ -73,4 +77,8 @@
   font-size: 20px;
   display: flex;
   justify-content: center;
+}
+
+.searchForm{
+  margin-top: 10px;
 }

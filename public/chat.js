@@ -16,9 +16,19 @@ let inputMess = document.getElementById('inputMess'),
 if (ctnConv) {
   ctnConv.forEach((ctn) => {
     ctn.addEventListener('click', (e) => {
-      let url = new URL(`http://localhost:3000/message?convId=${e.target.childNodes[1].className}`);
-      window.location = url;
+      if (e.target.tagName === "P") {
+        let url = new URL(`http://localhost:3000/message?convId=${e.target.parentElement.childNodes[1].className}`);
+        window.location = url;
+      }else {
+        let url = new URL(`http://localhost:3000/message?convId=${e.target.childNodes[1].className}`);
+        window.location = url;
+      }
     });
+    let text = ctn.children[1];
+    if (text.textContent.length > 10) {
+      var resText = text.textContent.slice(0,10) + "...";
+      text.textContent = resText;
+    }
   });
 }
 

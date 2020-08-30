@@ -18,7 +18,7 @@
                 {{#if @last}}
                   {{#each value as |val|}}
                     {{#if val.message}}
-                      <p>Dernier message : {{val.message}}</p>
+                      <p>{{val.message}}</p>
                     {{/if}}
                     {{#if val.date}}
                       <p>{{fromNow val.date}}</p>
