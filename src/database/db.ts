@@ -2,6 +2,9 @@ import mongoose from 'mongoose';
 import _user from '../schema/user';
 import _tweetNode from '../schema/tweetNode';
 import _conversation from '../schema/conversation';
+import dotenv from "dotenv";
+
+dotenv.config();
 
 import InterUser from "../interfaces/InterUser";
 
@@ -12,7 +15,7 @@ let option:object = {
   useUnifiedTopology: true
 }
 
-const twidb = mongoose.connect('mongodb://localhost:27017/twinode',option);
+const twidb = mongoose.connect(process.env.DB,option);
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
