@@ -54,7 +54,7 @@
     "@types/nodemailer-smtp-transport": "^2.7.4",
     "@types/socket.io": "^2.1.6",
     "concurrently": "^5.2.0",
-    "nodemon": "^2.0.4",
+    "nodemon": "^2.0.20",
     "typescript": "^3.9.3"
   }
 }
